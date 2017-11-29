@@ -20,8 +20,9 @@ public class UnbiasedProcessor {
     private final int[][] results;
     private final ImmutableIntArray[] countsView;
 
-    private final int[] toFlip;
-    private final Index[] indices;
+    private final int[] nextToFlip;
+    private final int[] whatToFlip;
+    private final int[] firstToFlip;
 
     public UnbiasedProcessor(int problemSize, int maxArity, ToIntFunction<ImmutableBitArray> fitness, int maxFitness) {
         this.n = problemSize;
@@ -34,16 +35,14 @@ public class UnbiasedProcessor {
         results = new int[maxArity][];
         countsView = new ImmutableIntArray[maxArity];
 
-        toFlip = new int[n];
-        indices = new Index[n];
+        nextToFlip = new int[n];
+        whatToFlip = new int[n];
+        firstToFlip = new int[1 << (maxArity - 1)];
 
         for (int i = 0; i < maxArity; ++i) {
             counts[i] = new int[1 << i];
             results[i] = new int[1 << i];
             countsView[i] = new ImmutableIntArray(counts[i]);
-        }
-        for (int i = 0; i < n; ++i) {
-            indices[i] = new Index(i);
         }
     }
 
@@ -76,7 +75,7 @@ public class UnbiasedProcessor {
             int[] xResults = results[arity - 1];
             ImmutableIntArray xView = countsView[arity - 1];
 
-            Arrays.sort(indices, indexComparator);
+            Arrays.fill(firstToFlip, -1);
             Arrays.fill(xCounts, 0);
             Arrays.fill(xResults, 0);
             for (int i = 0; i < n; ++i) {
@@ -87,31 +86,31 @@ public class UnbiasedProcessor {
                         mask |= 1 << (j - 1);
                     }
                 }
-                indices[i].mask = mask;
+                nextToFlip[i] = firstToFlip[mask];
+                firstToFlip[mask] = i;
                 ++xCounts[mask];
             }
             int maxMask = 1 << (arity - 1);
             operator.apply(xView, xResults);
-            Arrays.sort(indices, maskComparator);
+
             int totalToFlip = 0;
-            for (int mask = 0, start = 0; mask < maxMask; ++mask) {
-                int finish = start;
-                while (finish < n && indices[finish].mask == mask) {
-                    ++finish;
+            for (int mask = 0; mask < maxMask; ++mask) {
+                int current = 0;
+                for (int e = firstToFlip[mask]; e != -1; e = nextToFlip[e]) {
+                    whatToFlip[current++] = e;
+                }
+                if (current != xCounts[mask]) {
+                    throw new AssertionError();
                 }
                 for (int t = 0; t < xResults[mask]; ++t) {
-                    int index = random.nextInt(finish - start - t) + start;
-                    Index chosen = indices[index];
-                    toFlip[totalToFlip++] = chosen.index;
-                    indices[index] = indices[finish - 1 - t];
-                    indices[finish - 1 - t] = chosen;
-                    if (finish - 1 - t < start) {
-                        throw new AssertionError();
-                    }
+                    int index = random.nextInt(current - t) + totalToFlip;
+                    int tmp = whatToFlip[totalToFlip];
+                    whatToFlip[totalToFlip] = whatToFlip[index];
+                    whatToFlip[index] = tmp;
+                    ++totalToFlip;
                 }
-                start = finish;
             }
-            result = selected[0].flip(toFlip, totalToFlip);
+            result = selected[0].flip(whatToFlip, totalToFlip);
         }
         IndividualImpl rv = new IndividualImpl(this, result, fitness.applyAsInt(result));
         queriedIndividuals.add(rv);
@@ -164,18 +163,6 @@ public class UnbiasedProcessor {
             return fitness;
         }
     }
-
-    private static final class Index {
-        final int index;
-        int mask;
-
-        private Index(int index) {
-            this.index = index;
-        }
-    }
-
-    private static final Comparator<Index> indexComparator = Comparator.comparingInt(o -> o.index);
-    private static final Comparator<Index> maskComparator = Comparator.comparingInt(o -> o.mask);
 
     public static class OptimumFound extends Exception {
         private final int nQueries;
