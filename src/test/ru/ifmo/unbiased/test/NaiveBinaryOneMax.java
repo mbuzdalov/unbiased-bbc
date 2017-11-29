@@ -2,10 +2,10 @@ package ru.ifmo.unbiased.test;
 
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.ToIntFunction;
 
 import org.junit.Assert;
 import org.junit.Test;
+
 import ru.ifmo.unbiased.Individual;
 import ru.ifmo.unbiased.UnbiasedProcessor;
 import ru.ifmo.unbiased.ops.Operator1;
@@ -13,8 +13,6 @@ import ru.ifmo.unbiased.ops.Operator2;
 import ru.ifmo.unbiased.util.ImmutableBitArray;
 
 public class NaiveBinaryOneMax {
-    private static final ToIntFunction<ImmutableBitArray> oneMaxWithLog = ImmutableBitArray::cardinality;
-
     private final Operator1 inversion = new Operator1() {
         @Override
         protected int applyUnary(int nBits) {
@@ -60,7 +58,7 @@ public class NaiveBinaryOneMax {
         int n = 239;
         int count = 1000;
 
-        UnbiasedProcessor processor = new UnbiasedProcessor(n, 2, oneMaxWithLog, n);
+        UnbiasedProcessor processor = new UnbiasedProcessor(n, 2, ImmutableBitArray::cardinality, n);
 
         int sum = 0;
         for (int i = 0; i < count; ++i) {
