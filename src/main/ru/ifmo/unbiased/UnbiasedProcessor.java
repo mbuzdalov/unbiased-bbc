@@ -46,6 +46,14 @@ public class UnbiasedProcessor {
         }
     }
 
+    public int getProblemSize() {
+        return n;
+    }
+
+    public int getMaxArity() {
+        return maxArity;
+    }
+
     public void reset() {
         for (IndividualImpl i : queriedIndividuals) {
             i.processor = null;
