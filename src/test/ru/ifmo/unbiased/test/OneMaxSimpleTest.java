@@ -44,9 +44,10 @@ public class OneMaxSimpleTest {
         }
 
         double avg = (double) (sum) / count;
-        System.out.println("OneMax::simpleBinary: average = " + avg + " = (n * 2) * " + (avg / (2 * n)));
+        double expected = 2 * n;
+        System.out.println("OneMax::simpleBinary: average = " + avg + " = (n * 2) * " + (avg / expected));
 
-        if (sum > n * 2 * count * 1.05 || sum < n * 2 * count * 0.95) {
+        if (sum > expected * count * 1.05 || sum < expected * count * 0.95) {
             Assert.fail("n is " + n + ", sum is " + sum + ", average is " + avg);
         }
     }
