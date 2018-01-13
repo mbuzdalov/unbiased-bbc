@@ -103,15 +103,17 @@ public class UnbiasedProcessor {
 
             int totalToFlip = 0;
             for (int mask = 0; mask < maxMask; ++mask) {
-                int current = 0;
+                int current = totalToFlip;
+                int countThisMask = 0;
                 for (int e = firstToFlip[mask]; e != -1; e = nextToFlip[e]) {
                     whatToFlip[current++] = e;
+                    ++countThisMask;
                 }
-                if (current != xCounts[mask]) {
+                if (countThisMask != xCounts[mask]) {
                     throw new AssertionError();
                 }
                 for (int t = 0; t < xResults[mask]; ++t) {
-                    int index = random.nextInt(current - t) + totalToFlip;
+                    int index = random.nextInt(countThisMask - t) + totalToFlip;
                     int tmp = whatToFlip[totalToFlip];
                     whatToFlip[totalToFlip] = whatToFlip[index];
                     whatToFlip[index] = tmp;
