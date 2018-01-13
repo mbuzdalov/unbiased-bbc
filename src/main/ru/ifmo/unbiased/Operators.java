@@ -30,6 +30,14 @@ public final class Operators {
         }
     };
 
+    public static final UnbiasedOperator FLIP_ONE_SAME = new Operator2() {
+        @Override
+        protected void applyBinary(int sameBits, int differentBits) {
+            flipSame(1);
+            flipDifferent(0);
+        }
+    };
+
     public static final UnbiasedOperator XOR3 = new UnbiasedOperator(3) {
         @Override
         protected void applyImpl(ImmutableIntArray bitCounts, int[] result) {
