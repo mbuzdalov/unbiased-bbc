@@ -1,12 +1,12 @@
 package ru.ifmo.unbiased.algo;
 
 import ru.ifmo.unbiased.Individual;
-import static ru.ifmo.unbiased.Operators.FLIP_ONE_SAME;
-import static ru.ifmo.unbiased.Operators.XOR3;
 import ru.ifmo.unbiased.UnbiasedProcessor;
 import ru.ifmo.unbiased.ops.Operator2;
 import ru.ifmo.unbiased.ops.UnbiasedOperator;
 import ru.ifmo.unbiased.util.ImmutableIntArray;
+
+import static ru.ifmo.unbiased.Operators.*;
 
 public final class OneMaxComplicated {
     private OneMaxComplicated() {}
@@ -61,6 +61,13 @@ public final class OneMaxComplicated {
         @Override
         protected void applyImpl(ImmutableIntArray bitCounts, int[] result) {
             result[2] = 1;
+        }
+    };
+
+    private static final UnbiasedOperator FLIP_ONE_WHERE_FIRST_DIFFERS = new UnbiasedOperator(3) {
+        @Override
+        protected void applyImpl(ImmutableIntArray bitCounts, int[] result) {
+            result[3] = 1;
         }
     };
 
@@ -169,7 +176,7 @@ public final class OneMaxComplicated {
                             } else {
                                 Individual flipOne = processor.query(FLIP_ONE_SAME, first, second);
                                 if (flipOne.fitness() == n - 2) {
-                                    first = processor.query(Operators.ternary1SS, first, second, flipOne);
+                                    first = processor.query(FLIP_ONE_WHERE_ALL_THREE_SAME, first, second, flipOne);
 
                                 } else {
                                     first = flipOne;
@@ -184,12 +191,12 @@ public final class OneMaxComplicated {
                             } else if (m.fitness() == first.fitness() + 1) {
 
 
-                                Individual p = processor.query(Operators.ternary2SD, first, second, m);
+                                Individual p = processor.query(FLIP_TWO_WHERE_THIRD_DIFFERS, first, second, m);
                                 if (p.fitness() == first.fitness() + 2) {
                                     first = p;
                                     second = processor.query(XOR3, first, second, m);
                                 } else {
-                                    Individual r = processor.query(Operators.ternaryDS1DD, first, m, p);
+                                    Individual r = processor.query(FLIP_ALL_WHERE_SECOND_DIFFERS_AND_ONE_WHERE_FIRST_DIFFERS, first, m, p);
 
                                     if (r.fitness() == first.fitness() + 2) {
                                         first = r;
@@ -200,12 +207,12 @@ public final class OneMaxComplicated {
                                     }
                                 }
                             } else {
-                                Individual p = processor.query(Operators.ternary1SD, first, second, m);
+                                Individual p = processor.query(FLIP_ONE_WHERE_THIRD_DIFFERS, first, second, m);
                                 if (p.fitness() == first.fitness() + 1) {
                                     first = p;
                                     second = processor.query(XOR3, first, second, m);
                                 } else {
-                                    Individual r = processor.query(Operators.ternary1DS, first, m, p);
+                                    Individual r = processor.query(FLIP_ONE_WHERE_SECOND_DIFFERS, first, m, p);
                                     if (r.fitness() == first.fitness() + 1) {
                                         first = r;
                                         second = processor.query(XOR3, first, second, m);
@@ -294,7 +301,7 @@ public final class OneMaxComplicated {
                         Individual d = processor.query(FLIP_TWO_DIFFERENT, first, b);
                         if (d.fitness() == first.fitness()) {
                             //d = 1011
-                            Individual e = processor.query(Operators.ternary1DD, first, b, d);
+                            Individual e = processor.query(FLIP_ONE_WHERE_FIRST_DIFFERS, first, b, d);
                             //f = |01|11
                             //b = |10|00
                             //d = |10|11
@@ -315,7 +322,7 @@ public final class OneMaxComplicated {
                             //f = |01|11
                             //b = |10|00
                             //d = |01|00
-                            Individual e = processor.query(Operators.ternary1DS, first, b, d);
+                            Individual e = processor.query(FLIP_ONE_WHERE_SECOND_DIFFERS, first, b, d);
                             if (e.fitness() == first.fitness() + 1) {
                                 //e = 1111
                                 first = e;
@@ -335,7 +342,7 @@ public final class OneMaxComplicated {
                         Individual d = processor.query(FLIP_TWO_DIFFERENT, b, first);
                         if (d.fitness() == b.fitness()) {
                             //d = 1101
-                            Individual e = processor.query(Operators.ternary1DD, b, first, d);
+                            Individual e = processor.query(FLIP_ONE_WHERE_FIRST_DIFFERS, b, first, d);
                             //b = 11|10|
                             //f = 00|01|
                             //d = 11|01|
@@ -353,7 +360,7 @@ public final class OneMaxComplicated {
                             }
                         } else if (d.fitness() == b.fitness() - 2) {
                             //d = 0010
-                            Individual e = processor.query(Operators.ternary1DS, b, first, d);
+                            Individual e = processor.query(FLIP_ONE_WHERE_SECOND_DIFFERS, b, first, d);
                             //b = 11|10|
                             //f = 00|01|
                             //d = 00|10|
@@ -378,12 +385,12 @@ public final class OneMaxComplicated {
                         } else if (m.fitness() == first.fitness() - 3) {
                             second = processor.query(XOR3, second, first, m);
                         } else if (m.fitness() == first.fitness() + 1) {
-                            Individual p = processor.query(Operators.ternary2SD, first, second, m);
+                            Individual p = processor.query(FLIP_TWO_WHERE_THIRD_DIFFERS, first, second, m);
                             if (p.fitness() == first.fitness() + 2) {
                                 first = p;
                                 second = processor.query(XOR3, first, second, m);
                             } else {
-                                Individual r = processor.query(Operators.ternaryDS1DD, first, m, p);
+                                Individual r = processor.query(FLIP_ALL_WHERE_SECOND_DIFFERS_AND_ONE_WHERE_FIRST_DIFFERS, first, m, p);
 
                                 if (r.fitness() == first.fitness() + 2) {
                                     first = r;
@@ -394,12 +401,12 @@ public final class OneMaxComplicated {
                                 }
                             }
                         } else {
-                            Individual p = processor.query(Operators.ternary1SD, first, second, m);
+                            Individual p = processor.query(FLIP_ONE_WHERE_THIRD_DIFFERS, first, second, m);
                             if (p.fitness() == first.fitness() + 1) {
                                 first = p;
                                 second = processor.query(XOR3, first, second, m);
                             } else {
-                                Individual r = processor.query(Operators.ternary1DS, first, m, p);
+                                Individual r = processor.query(FLIP_ONE_WHERE_SECOND_DIFFERS, first, m, p);
                                 if (r.fitness() == first.fitness() + 1) {
                                     first = r;
                                     second = processor.query(XOR3, first, second, m);
@@ -420,60 +427,6 @@ public final class OneMaxComplicated {
     }
 
     private static class Operators {
-        static final UnbiasedOperator ternary1SS = new UnbiasedOperator(3) {
-            @Override
-            protected void applyImpl(ImmutableIntArray bitCounts, int[] result) {
-                result[0] = 1;                // flip nothing    where (first == second), (first == third)  => 00
-                result[1] = 0;
-                result[2] = 0;
-                result[3] = 0;                // flip nothing    where (first != second), (first != third)  => 11
-            }
-        };
-        static final UnbiasedOperator ternary2SD = new UnbiasedOperator(3) {
-            @Override
-            protected void applyImpl(ImmutableIntArray bitCounts, int[] result) {
-                result[0] = 0;                // flip nothing    where (first == second), (first == third)  => 00
-                result[1] = 0;
-                result[2] = 2;
-                result[3] = 0;                // flip nothing    where (first != second), (first != third)  => 11
-            }
-        };
-        static final UnbiasedOperator ternaryDS1DD = new UnbiasedOperator(3) {
-            @Override
-            protected void applyImpl(ImmutableIntArray bitCounts, int[] result) {
-                result[0] = 0;                // flip nothing    where (first == second), (first == third)  => 00
-                result[1] = bitCounts.get(1);
-                result[2] = 0;
-                result[3] = 1;                // flip nothing    where (first != second), (first != third)  => 11
-            }
-        };
-        static final UnbiasedOperator ternary1SD = new UnbiasedOperator(3) {
-            @Override
-            protected void applyImpl(ImmutableIntArray bitCounts, int[] result) {
-                result[0] = 0;                // flip nothing    where (first == second), (first == third)  => 00
-                result[1] = 0;
-                result[2] = 1;
-                result[3] = 0;                // flip nothing    where (first != second), (first != third)  => 11
-            }
-        };
-        static final UnbiasedOperator ternary1DS = new UnbiasedOperator(3) {
-            @Override
-            protected void applyImpl(ImmutableIntArray bitCounts, int[] result) {
-                result[0] = 0;                // flip nothing    where (first == second), (first == third)  => 00
-                result[1] = 1;
-                result[2] = 0;
-                result[3] = 0;                // flip nothing    where (first != second), (first != third)  => 11
-            }
-        };
-        static final UnbiasedOperator ternary1DD = new UnbiasedOperator(3) {
-            @Override
-            protected void applyImpl(ImmutableIntArray bitCounts, int[] result) {
-                result[0] = 0;                // flip nothing    where (first == second), (first == third)  => 00
-                result[1] = 0;
-                result[2] = 0;
-                result[3] = 1;                // flip nothing    where (first != second), (first != third)  => 11
-            }
-        };
         static final UnbiasedOperator ternary1DD1DS = new UnbiasedOperator(3) {
             @Override
             protected void applyImpl(ImmutableIntArray bitCounts, int[] result) {
