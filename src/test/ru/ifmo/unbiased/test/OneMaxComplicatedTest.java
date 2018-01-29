@@ -8,7 +8,16 @@ import ru.ifmo.unbiased.util.ImmutableBitArray;
 
 public class OneMaxComplicatedTest {
     @Test
-    public void testTernary() {
+    public void smokeTernary() {
+        for (int n = 1; n <= 100; ++n) {
+            for (int t = 0; t < 10; ++t) {
+                OneMaxComplicated.runTernary(new UnbiasedProcessor(n, 3, ImmutableBitArray::cardinality, n));
+            }
+        }
+    }
+
+    @Test
+    public void runtimeTernary() {
         int n = 239;
         int count = 1000;
         UnbiasedProcessor processor = new UnbiasedProcessor(n, 3, ImmutableBitArray::cardinality, n);
@@ -27,7 +36,16 @@ public class OneMaxComplicatedTest {
     }
 
     @Test
-    public void testQuaternary1() {
+    public void smokeQuaternary1() {
+        for (int n = 1; n <= 100; ++n) {
+            for (int t = 0; t < 10; ++t) {
+                OneMaxComplicated.runQuaternary1(new UnbiasedProcessor(n, 4, ImmutableBitArray::cardinality, n));
+            }
+        }
+    }
+
+    @Test
+    public void runtimeQuaternary1() {
         int n = 239;
         int count = 1000;
         UnbiasedProcessor processor = new UnbiasedProcessor(n, 4, ImmutableBitArray::cardinality, n);
@@ -46,9 +64,10 @@ public class OneMaxComplicatedTest {
     }
 
     @Test
-    public void genericSmallArityTest() {
+    public void smokeGeneric() {
         for (int arity = 4; arity <= 6; ++arity) {
-            for (int n = 1; n <= Math.min(25, 1 << (arity - 1)); ++n) {
+            // The tricky bound on n is because arity 6 is currently quite slow
+            for (int n = 1; n <= (arity == 6 ? 20 : 100); ++n) {
                 int count = 100;
                 UnbiasedProcessor processor = new UnbiasedProcessor(n, arity, ImmutableBitArray::cardinality, n);
                 int sum = 0;
@@ -59,9 +78,6 @@ public class OneMaxComplicatedTest {
                 double avg = (double) (sum) / count;
 
                 System.out.println("OneMax::generic(n = " + n + ", arity = " + arity + "): average = " + avg);
-                if (avg > n + 0.6) {
-                    Assert.fail("n is " + n + ", sum is " + sum + ", average is " + avg);
-                }
             }
         }
     }

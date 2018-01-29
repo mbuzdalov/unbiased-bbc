@@ -8,7 +8,16 @@ import ru.ifmo.unbiased.util.ImmutableBitArray;
 
 public class OneMaxSimpleTest {
     @Test
-    public void testSimpleUnary() {
+    public void smokeSimpleUnary() {
+        for (int n = 1; n <= 100; ++n) {
+            for (int t = 0; t < 10; ++t) {
+                OneMaxSimple.runUnary(new UnbiasedProcessor(n, 1, ImmutableBitArray::cardinality, n));
+            }
+        }
+    }
+
+    @Test
+    public void runtimeSimpleUnary() {
         int n = 239;
         int count = 300;
 
@@ -32,7 +41,16 @@ public class OneMaxSimpleTest {
     }
 
     @Test
-    public void testSimpleBinary() {
+    public void smokeSimpleBinary() {
+        for (int n = 1; n <= 100; ++n) {
+            for (int t = 0; t < 10; ++t) {
+                OneMaxSimple.runBinary(new UnbiasedProcessor(n, 2, ImmutableBitArray::cardinality, n));
+            }
+        }
+    }
+
+    @Test
+    public void runtimeSimpleBinary() {
         int n = 239;
         int count = 1000;
 
