@@ -105,51 +105,76 @@ public final class GenericOneMax {
                         individuals[1] = currentMask;
                         virtualIndividuals[0] = 0;
                         virtualIndividuals[1] = (1 << remaining) - 1;
-                        for (int i = 2; i <= log; ++i) {
-                            individuals[i] = processor.query(flipUpperHalf(i, 1), Arrays.copyOf(individuals, i));
-                            virtualIndividuals[i] = simulateUpperHalf(remaining, Arrays.copyOf(virtualIndividuals, i));
-                        }
 
                         // zero.fitness = (others) + (ones in remaining)
                         // currentMask.fitness = (others) + remaining - (ones in remaining)
                         // (others) = (zero.fitness + currentMask.fitness - remaining) / 2
                         int others = (zero.fitness() + currentMask.fitness() - remaining) / 2;
-                        UnrestrictedOneMax unrestricted = new UnrestrictedOneMax(remaining,
-                                virtualIndividuals[0], individuals[0].fitness() - others,
-                                virtualIndividuals[1], individuals[1].fitness() - others);
 
-                        for (int i = 2; i <= log; ++i) {
-                            unrestricted.add(virtualIndividuals[i], individuals[i].fitness() - others);
+                        UnrestrictedOneMax unrestricted = null;
+
+                        if (log < 2) {
+                            // to satisfy IDEA's null inference.
+                            throw new AssertionError();
                         }
 
-                        int[] indicesToSet = new int[remaining];
-                        int[] nonTrivialVirtualIndividuals = Arrays.copyOfRange(virtualIndividuals, 2, log + 1);
-                        for (int i = 0; i < remaining; ++i) {
-                            indicesToSet[i] = collectBits(nonTrivialVirtualIndividuals, i);
+                        Individual alreadyFoundDuringInit = null;
+
+                        if (individuals[0].fitness() - others == remaining) {
+                            alreadyFoundDuringInit = individuals[0];
+                        } else if (individuals[1].fitness() - others == remaining) {
+                            alreadyFoundDuringInit = individuals[1];
                         }
-                        FixedQueryOperator magic = new FixedQueryOperator(log, 1);
-                        Individual[] notFullyInvertedIndividuals = new Individual[log];
-                        notFullyInvertedIndividuals[0] = individuals[0];
-                        System.arraycopy(individuals, 2, notFullyInvertedIndividuals, 1, log - 1);
-                        while (true) {
-                            int individual = unrestricted.getIndividualToTest();
-                            Arrays.fill(magic.valuesToSet, false);
+
+                        for (int i = 2; alreadyFoundDuringInit == null && i <= log; ++i) {
+                            individuals[i] = processor.query(flipUpperHalf(i, 1), Arrays.copyOf(individuals, i));
+                            virtualIndividuals[i] = simulateUpperHalf(remaining, Arrays.copyOf(virtualIndividuals, i));
+                            if (i == 2) {
+                                unrestricted = new UnrestrictedOneMax(remaining,
+                                        virtualIndividuals[0], individuals[0].fitness() - others,
+                                        virtualIndividuals[2], individuals[2].fitness() - others);
+                            } else {
+                                unrestricted.add(virtualIndividuals[i], individuals[i].fitness() - others);
+                            }
+                            if (individuals[i].fitness() - others == remaining) {
+                                alreadyFoundDuringInit = individuals[i];
+                            }
+                        }
+
+                        if (alreadyFoundDuringInit != null) {
+                            if (alreadyFoundDuringInit != zero){
+                                answer = processor.query(XOR3, answer, zero, alreadyFoundDuringInit);
+                            }
+                            usedMask = processor.query(XOR3, usedMask, zero, currentMask);
+                        } else {
+                            int[] indicesToSet = new int[remaining];
+                            int[] nonTrivialVirtualIndividuals = Arrays.copyOfRange(virtualIndividuals, 2, log + 1);
                             for (int i = 0; i < remaining; ++i) {
-                                if ((individual & (1 << i)) != 0) {
-                                    int indexWhere = indicesToSet[i];
-                                    magic.valuesToSet[indexWhere] = true;
+                                indicesToSet[i] = collectBits(nonTrivialVirtualIndividuals, i);
+                            }
+                            FixedQueryOperator magic = new FixedQueryOperator(log, 1);
+                            Individual[] notFullyInvertedIndividuals = new Individual[log];
+                            notFullyInvertedIndividuals[0] = individuals[0];
+                            System.arraycopy(individuals, 2, notFullyInvertedIndividuals, 1, log - 1);
+                            while (true) {
+                                int individual = unrestricted.getIndividualToTest();
+                                Arrays.fill(magic.valuesToSet, false);
+                                for (int i = 0; i < remaining; ++i) {
+                                    if ((individual & (1 << i)) != 0) {
+                                        int indexWhere = indicesToSet[i];
+                                        magic.valuesToSet[indexWhere] = true;
+                                    }
                                 }
+                                Individual ind = processor.query(magic, notFullyInvertedIndividuals);
+                                if (unrestricted.countCompatibleIndividuals() == 1) {
+                                    // this is the partial answer
+                                    answer = processor.query(XOR3, answer, zero, ind);
+                                    usedMask = processor.query(XOR3, usedMask, zero, currentMask);
+                                    break;
+                                }
+                                unrestricted.add(individual, ind.fitness() - others);
                             }
-                            Individual ind = processor.query(magic, notFullyInvertedIndividuals);
-                            if (unrestricted.countCompatibleIndividuals() == 1) {
-                                // this is the partial answer
-                                answer = processor.query(XOR3, answer, zero, ind);
-                                usedMask = processor.query(XOR3, usedMask, zero, currentMask);
-                                break;
-                            }
-                            unrestricted.add(individual, ind.fitness() - others);
                         }
-
                     }
                 }
                 throw new AssertionError("The optimum must have been found by this time");
