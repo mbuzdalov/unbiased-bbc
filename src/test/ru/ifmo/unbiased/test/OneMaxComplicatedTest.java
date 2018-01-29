@@ -44,4 +44,25 @@ public class OneMaxComplicatedTest {
             Assert.fail("n is " + n + ", sum is " + sum + ", average is " + avg);
         }
     }
+
+    @Test
+    public void genericSmallArityTest() {
+        for (int arity = 4; arity <= 6; ++arity) {
+            for (int n = 1; n <= Math.min(25, 1 << (arity - 1)); ++n) {
+                int count = 100;
+                UnbiasedProcessor processor = new UnbiasedProcessor(n, arity, ImmutableBitArray::cardinality, n);
+                int sum = 0;
+                for (int i = 0; i < count; ++i) {
+                    sum += OneMaxComplicated.runGeneric(processor);
+                }
+
+                double avg = (double) (sum) / count;
+
+                System.out.println("OneMax::generic(n = " + n + ", arity = " + arity + "): average = " + avg);
+                if (avg > n + 0.6) {
+                    Assert.fail("n is " + n + ", sum is " + sum + ", average is " + avg);
+                }
+            }
+        }
+    }
 }

@@ -1,7 +1,10 @@
 package ru.ifmo.unbiased.algo;
 
+import java.util.Arrays;
+
 import ru.ifmo.unbiased.Individual;
 import ru.ifmo.unbiased.UnbiasedProcessor;
+import ru.ifmo.unbiased.misc.UnrestrictedOneMax;
 import ru.ifmo.unbiased.ops.Operator2;
 import ru.ifmo.unbiased.ops.UnbiasedOperator;
 import ru.ifmo.unbiased.util.ImmutableIntArray;
@@ -423,6 +426,134 @@ public final class OneMaxComplicated {
             }
         } catch (UnbiasedProcessor.OptimumFound found) {
             return found.numberOfQueries();
+        }
+    }
+
+    public static int runGeneric(UnbiasedProcessor processor) {
+        int maxArity = processor.getMaxArity();
+        if (maxArity <= 2) {
+            throw new IllegalArgumentException("General algorithm works only for max arity >= 3");
+        }
+        if (maxArity >= 30) {
+            throw new UnsupportedOperationException("Current implementation of the general algorithm cannot work with arity greater than 30");
+        }
+        processor.reset();
+        try {
+            int n = processor.getProblemSize();
+            if (n <= (1 << (maxArity - 1))) {
+                // The arity is enough for explicit solving in O(n / log n + log n)
+                int log = 2; // this is to cover n == 1 during initialization.
+                while (n > 1 << (log - 1)) {
+                    log += 1;
+                }
+                Individual[] individuals = new Individual[log];
+                int[] virtualIndividuals = new int[log];
+                individuals[0] = processor.newRandomIndividual();
+                virtualIndividuals[0] = 0;
+                for (int i = 1; i < log; ++i) {
+                    individuals[i] = processor.query(flipUpperHalf(i), Arrays.copyOf(individuals, i));
+                    virtualIndividuals[i] = simulateUpperHalf(n, Arrays.copyOf(virtualIndividuals, i));
+                }
+                UnrestrictedOneMax unrestricted = new UnrestrictedOneMax(n,
+                        virtualIndividuals[0], individuals[0].fitness(),
+                        virtualIndividuals[1], individuals[1].fitness());
+
+                for (int i = 2; i < log; ++i) {
+                    unrestricted.add(virtualIndividuals[i], individuals[i].fitness());
+                }
+
+                int[] indicesToSet = new int[n];
+                int[] nonzeroVirtualIndividuals = Arrays.copyOfRange(virtualIndividuals, 1, log);
+                for (int i = 0; i < n; ++i) {
+                    indicesToSet[i] = collectBits(nonzeroVirtualIndividuals, i);
+                }
+                FixedQueryOperator magic = new FixedQueryOperator(log);
+                //noinspection InfiniteLoopStatement
+                while (true) {
+                    int individual = unrestricted.getIndividualToTest();
+                    Arrays.fill(magic.valuesToSet, false);
+                    for (int i = 0; i < n; ++i) {
+                        if ((individual & (1 << i)) != 0) {
+                            int indexWhere = indicesToSet[i];
+                            magic.valuesToSet[indexWhere] = true;
+                        }
+                    }
+                    Individual ind = processor.query(magic, individuals);
+                    unrestricted.add(individual, ind.fitness());
+                }
+            } else {
+                int blockSize = (1 << (maxArity - 1)) - 1;
+                for (int done = 0; done < n; done += blockSize) {
+                    int remaining = Math.min(blockSize, n - done);
+                }
+                throw new UnsupportedOperationException("Not yet implemented");
+            }
+        } catch (UnbiasedProcessor.OptimumFound found) {
+            return found.numberOfQueries();
+        }
+    }
+
+    private static int collectBits(int[] individuals, int bit) {
+        int rv = 0;
+        for (int i = 0; i < individuals.length; ++i) {
+            rv ^= ((individuals[i] >>> bit) & 1) << i;
+        }
+        return rv;
+    }
+
+    private static int simulateUpperHalf(int n, int[] individuals) {
+        if (individuals[0] != 0) {
+            throw new AssertionError();
+        }
+        int last = collectBits(individuals, 0);
+        int lastIndex = 0;
+        int rv = 0;
+        for (int i = 1; i < n; ++i) {
+            int curr = collectBits(individuals, i);
+            if (curr != last) {
+                // [last; curr) is the current component.
+                int diff = (i - lastIndex) / 2; // rounded down
+                for (int j = lastIndex + diff; j < i; ++j) {
+                    rv ^= 1 << j;
+                }
+                last = curr;
+                lastIndex = i;
+            }
+        }
+        int diff = (n - lastIndex) / 2; // rounded down
+        for (int j = lastIndex + diff; j < n; ++j) {
+            rv ^= 1 << j;
+        }
+        return rv;
+    }
+
+    private static UnbiasedOperator flipUpperHalf(int arity) {
+        return new UnbiasedOperator(arity) {
+            @Override
+            protected void applyImpl(ImmutableIntArray bitCounts, int[] result) {
+                for (int i = 0, iMax = bitCounts.length(); i < iMax; ++i) {
+                    result[i] = bitCounts.get(i) - bitCounts.get(i) / 2;
+                }
+            }
+        };
+    }
+
+    private static class FixedQueryOperator extends UnbiasedOperator {
+        boolean[] valuesToSet;
+
+        FixedQueryOperator(int arity) {
+            super(arity);
+            valuesToSet = new boolean[1 << (arity - 1)];
+        }
+
+        @Override
+        protected void applyImpl(ImmutableIntArray bitCounts, int[] result) {
+            for (int i = 0; i < valuesToSet.length; ++i) {
+                if (bitCounts.get(i) > 1) {
+                    throw new AssertionError();
+                }
+                result[i] = valuesToSet[i] ? bitCounts.get(i) : 0;
+            }
         }
     }
 
