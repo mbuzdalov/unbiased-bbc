@@ -3,15 +3,15 @@ package ru.ifmo.unbiased.test;
 import org.junit.Assert;
 import org.junit.Test;
 import ru.ifmo.unbiased.UnbiasedProcessor;
-import ru.ifmo.unbiased.algo.OneMaxComplicated;
+import ru.ifmo.unbiased.algo.OneMaxHandCrafted;
 import ru.ifmo.unbiased.util.ImmutableBitArray;
 
-public class OneMaxComplicatedTest {
+public class OneMaxHandCraftedTest {
     @Test
     public void smokeTernary() {
         for (int n = 1; n <= 100; ++n) {
             for (int t = 0; t < 10; ++t) {
-                OneMaxComplicated.runTernary(new UnbiasedProcessor(n, 3, ImmutableBitArray::cardinality, n));
+                OneMaxHandCrafted.runTernary(new UnbiasedProcessor(n, 3, ImmutableBitArray::cardinality, n));
             }
         }
     }
@@ -23,7 +23,7 @@ public class OneMaxComplicatedTest {
         UnbiasedProcessor processor = new UnbiasedProcessor(n, 3, ImmutableBitArray::cardinality, n);
         int sum = 0;
         for (int i = 0; i < count; ++i) {
-            sum += OneMaxComplicated.runTernary(processor);
+            sum += OneMaxHandCrafted.runTernary(processor);
         }
 
         double avg = (double) (sum) / count;
@@ -39,7 +39,7 @@ public class OneMaxComplicatedTest {
     public void smokeQuaternary1() {
         for (int n = 1; n <= 100; ++n) {
             for (int t = 0; t < 10; ++t) {
-                OneMaxComplicated.runQuaternary1(new UnbiasedProcessor(n, 4, ImmutableBitArray::cardinality, n));
+                OneMaxHandCrafted.runQuaternary1(new UnbiasedProcessor(n, 4, ImmutableBitArray::cardinality, n));
             }
         }
     }
@@ -51,7 +51,7 @@ public class OneMaxComplicatedTest {
         UnbiasedProcessor processor = new UnbiasedProcessor(n, 4, ImmutableBitArray::cardinality, n);
         int sum = 0;
         for (int i = 0; i < count; ++i) {
-            sum += OneMaxComplicated.runQuaternary1(processor);
+            sum += OneMaxHandCrafted.runQuaternary1(processor);
         }
 
         double avg = (double) (sum) / count;
@@ -60,25 +60,6 @@ public class OneMaxComplicatedTest {
 
         if (sum > expected * count * 1.05 || sum < expected * count * 0.95) {
             Assert.fail("n is " + n + ", sum is " + sum + ", average is " + avg);
-        }
-    }
-
-    @Test
-    public void smokeGeneric() {
-        for (int arity = 4; arity <= 6; ++arity) {
-            // The tricky bound on n is because arity 6 is currently quite slow
-            for (int n = 1; n <= (arity == 6 ? 20 : 100); ++n) {
-                int count = 100;
-                UnbiasedProcessor processor = new UnbiasedProcessor(n, arity, ImmutableBitArray::cardinality, n);
-                int sum = 0;
-                for (int i = 0; i < count; ++i) {
-                    sum += OneMaxComplicated.runGeneric(processor);
-                }
-
-                double avg = (double) (sum) / count;
-
-                System.out.println("OneMax::generic(n = " + n + ", arity = " + arity + "): average = " + avg);
-            }
         }
     }
 }
