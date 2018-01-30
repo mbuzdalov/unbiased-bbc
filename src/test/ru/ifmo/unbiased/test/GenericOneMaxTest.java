@@ -32,8 +32,8 @@ public class GenericOneMaxTest {
         }
 
         double avg = (double) (sum) / count;
-        double expected = 19.0 * n / 12.0;
-        System.out.println("GenericOneMax, arity 3: average = " + avg + " = (19/12 n) * " + (avg / expected));
+        double expected = 53.0 * n / 41.0;
+        System.out.println("GenericOneMax, arity 3: average = " + avg + " = (53/41 n) * " + (avg / expected));
 
         if (sum > expected * count * 1.01) {
             Assert.fail("GREATER: n is " + n + ", sum is " + sum + ", average is " + avg);
@@ -54,8 +54,8 @@ public class GenericOneMaxTest {
         }
 
         double avg = (double) (sum) / count;
-        double expected = 69.0 * n / 64.0;
-        System.out.println("GenericOneMax, arity 4: average = " + avg + " = (69/64 n) * " + (avg / expected));
+        double expected = 29.0 * n / 31.0;
+        System.out.println("GenericOneMax, arity 4: average = " + avg + " = (29/31 n) * " + (avg / expected));
 
         if (sum > expected * count * 1.01) {
             Assert.fail("GREATER: n is " + n + ", sum is " + sum + ", average is " + avg);
@@ -76,8 +76,8 @@ public class GenericOneMaxTest {
         }
 
         double avg = (double) (sum) / count;
-        double expected = 23.0 * n / 32.0;
-        System.out.println("GenericOneMax, arity 5: average = " + avg + " = (23/32 n) * " + (avg / expected));
+        double expected = 13.0 * n / 20.0;
+        System.out.println("GenericOneMax, arity 5: average = " + avg + " = (13/20 n) * " + (avg / expected));
 
         if (sum > expected * count * 1.01) {
             Assert.fail("GREATER: n is " + n + ", sum is " + sum + ", average is " + avg);

@@ -9,17 +9,10 @@ import ru.ifmo.unbiased.ops.Operator2;
 import ru.ifmo.unbiased.ops.UnbiasedOperator;
 import ru.ifmo.unbiased.util.ImmutableIntArray;
 
-import static ru.ifmo.unbiased.Operators.XOR3;
+import static ru.ifmo.unbiased.Operators.*;
 
 public final class GenericOneMax {
     private GenericOneMax() {}
-
-    private static final UnbiasedOperator FLIP_ONE_WHERE_ALL_THREE_SAME = new UnbiasedOperator(3) {
-        @Override
-        protected void applyImpl(ImmutableIntArray bitCounts, int[] result) {
-            result[0] = 1;
-        }
-    };
 
     public static int runGeneric(UnbiasedProcessor processor) {
         int maxArity = processor.getMaxArity();
@@ -77,15 +70,14 @@ public final class GenericOneMax {
                 // Solve the problem by splitting it into blocks of maximum allowed size for the given arity.
                 int blockSize = (1 << (maxArity - 1)) - 1;
 
-                Individual zero = processor.newRandomIndividual();
-                Individual usedMask = zero;
-                Individual answer = zero;
+                Individual answer = processor.newRandomIndividual();
+                Individual invertedWhereKnown = answer;
 
                 for (int done = 0; done < n; done += blockSize) {
                     int remaining = Math.min(blockSize, n - done);
                     if (remaining == 1) {
                         // this is the last frame, so we just do it
-                        processor.query(FLIP_ONE_WHERE_ALL_THREE_SAME, answer, zero, usedMask);
+                        processor.query(FLIP_ONE_SAME, answer, invertedWhereKnown);
                         throw new AssertionError("Optimum must have been found before");
                     } else {
                         int log = 1;
@@ -98,18 +90,18 @@ public final class GenericOneMax {
                             }
                         }
 
-                        Individual currentMask = processor.query(flipXCoinciding(remaining), zero, usedMask);
+                        Individual currentMask = processor.query(flipXCoinciding(remaining), answer, invertedWhereKnown);
                         Individual[] individuals = new Individual[log + 1];
                         int[] virtualIndividuals = new int[log + 1];
-                        individuals[0] = zero;
+                        individuals[0] = answer;
                         individuals[1] = currentMask;
                         virtualIndividuals[0] = 0;
                         virtualIndividuals[1] = (1 << remaining) - 1;
 
-                        // zero.fitness = (others) + (ones in remaining)
+                        // answer.fitness = (others) + (ones in remaining)
                         // currentMask.fitness = (others) + remaining - (ones in remaining)
-                        // (others) = (zero.fitness + currentMask.fitness - remaining) / 2
-                        int others = (zero.fitness() + currentMask.fitness() - remaining) / 2;
+                        // (others) = (answer.fitness + currentMask.fitness - remaining) / 2
+                        int others = (answer.fitness() + currentMask.fitness() - remaining) / 2;
 
                         UnrestrictedOneMax unrestricted = null;
 
@@ -142,10 +134,8 @@ public final class GenericOneMax {
                         }
 
                         if (alreadyFoundDuringInit != null) {
-                            if (alreadyFoundDuringInit != zero){
-                                answer = processor.query(XOR3, answer, zero, alreadyFoundDuringInit);
-                            }
-                            usedMask = processor.query(XOR3, usedMask, zero, currentMask);
+                            answer = alreadyFoundDuringInit;
+                            invertedWhereKnown = processor.query(XOR3, invertedWhereKnown, answer, currentMask);
                         } else {
                             int[] indicesToSet = new int[remaining];
                             int[] nonTrivialVirtualIndividuals = Arrays.copyOfRange(virtualIndividuals, 2, log + 1);
@@ -168,8 +158,8 @@ public final class GenericOneMax {
                                 Individual ind = processor.query(magic, notFullyInvertedIndividuals);
                                 if (unrestricted.countCompatibleIndividuals() == 1) {
                                     // this is the partial answer
-                                    answer = processor.query(XOR3, answer, zero, ind);
-                                    usedMask = processor.query(XOR3, usedMask, zero, currentMask);
+                                    answer = ind;
+                                    invertedWhereKnown = processor.query(XOR3, invertedWhereKnown, answer, currentMask);
                                     break;
                                 }
                                 unrestricted.add(individual, ind.fitness() - others);
