@@ -15,7 +15,21 @@ public class GenericOneMaxTest {
                 int count = arity == 6 ? 1 : 10;
                 UnbiasedProcessor processor = new UnbiasedProcessor(n, arity, ImmutableBitArray::cardinality, n);
                 for (int i = 0; i < count; ++i) {
-                    GenericOneMax.runGeneric(processor);
+                    GenericOneMax.runGeneric(processor, false);
+                }
+            }
+        }
+    }
+
+    @Test
+    public void smokeGenericPure() {
+        for (int arity = 3; arity <= 6; ++arity) {
+            // The tricky bound on n is because arity 6 is currently quite slow
+            for (int n = 1; n <= (arity == 6 ? 50 : 100); ++n) {
+                int count = arity == 6 ? 1 : 10;
+                UnbiasedProcessor processor = new UnbiasedProcessor(n, arity, ImmutableBitArray::cardinality, n);
+                for (int i = 0; i < count; ++i) {
+                    GenericOneMax.runGeneric(processor, true);
                 }
             }
         }
@@ -28,7 +42,7 @@ public class GenericOneMaxTest {
         UnbiasedProcessor processor = new UnbiasedProcessor(n, 3, ImmutableBitArray::cardinality, n);
         int sum = 0;
         for (int i = 0; i < count; ++i) {
-            sum += GenericOneMax.runGeneric(processor);
+            sum += GenericOneMax.runGeneric(processor, false);
         }
 
         double avg = (double) (sum) / count;
@@ -50,7 +64,7 @@ public class GenericOneMaxTest {
         UnbiasedProcessor processor = new UnbiasedProcessor(n, 4, ImmutableBitArray::cardinality, n);
         int sum = 0;
         for (int i = 0; i < count; ++i) {
-            sum += GenericOneMax.runGeneric(processor);
+            sum += GenericOneMax.runGeneric(processor, false);
         }
 
         double avg = (double) (sum) / count;
@@ -72,7 +86,7 @@ public class GenericOneMaxTest {
         UnbiasedProcessor processor = new UnbiasedProcessor(n, 5, ImmutableBitArray::cardinality, n);
         int sum = 0;
         for (int i = 0; i < count; ++i) {
-            sum += GenericOneMax.runGeneric(processor);
+            sum += GenericOneMax.runGeneric(processor, false);
         }
 
         double avg = (double) (sum) / count;
@@ -95,7 +109,7 @@ public class GenericOneMaxTest {
         UnbiasedProcessor processor = new UnbiasedProcessor(n, 6, ImmutableBitArray::cardinality, n);
         int sum = 0;
         for (int i = 0; i < count; ++i) {
-            int value = GenericOneMax.runGeneric(processor);
+            int value = GenericOneMax.runGeneric(processor, false);
             sum += value;
             System.out.println("    [arity 6, " + (i + 1) + "/" + count + "]: " + value);
         }

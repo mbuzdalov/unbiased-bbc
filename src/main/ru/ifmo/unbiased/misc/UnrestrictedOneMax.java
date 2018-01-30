@@ -6,11 +6,16 @@ public final class UnrestrictedOneMax {
     private final int[] individuals;
     private int individualCount;
     private final int n;
+    private final boolean pure;
 
-    public UnrestrictedOneMax(int n,
+    public UnrestrictedOneMax(int n, boolean pure,
                               int firstIndividual, int firstFitness,
                               int secondIndividual, int secondFitness) {
+        if (n > 32 || n < 1) {
+            throw new IllegalArgumentException("n cannot be " + n + ", it must be in [1; 32]");
+        }
         this.n = n;
+        this.pure = pure;
         int globalMask = n == 32 ? -1 : (1 << n) - 1;
         firstIndividual &= globalMask;
         secondIndividual &= globalMask;
@@ -102,7 +107,15 @@ public final class UnrestrictedOneMax {
 
     // Must return the remaining compatible individual when countCompatibleIndividuals() returns 1.
     public int getIndividualToTest() {
-        return individuals[ThreadLocalRandom.current().nextInt(individualCount)];
+        if (individualCount == 1) {
+            return individuals[0];
+        }
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        if (pure) {
+            return random.nextInt() >>> (32 - n);
+        } else {
+            return individuals[random.nextInt(individualCount)];
+        }
     }
 
     private static int choose(int n, int k) {

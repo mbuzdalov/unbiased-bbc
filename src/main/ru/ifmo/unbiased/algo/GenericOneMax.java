@@ -14,7 +14,7 @@ import static ru.ifmo.unbiased.Operators.*;
 public final class GenericOneMax {
     private GenericOneMax() {}
 
-    public static int runGeneric(UnbiasedProcessor processor) {
+    public static int runGeneric(UnbiasedProcessor processor, boolean purelyRandomUnrestrictedOneMax) {
         int maxArity = processor.getMaxArity();
         if (maxArity <= 2) {
             throw new IllegalArgumentException("General algorithm works only for max arity >= 3");
@@ -41,7 +41,7 @@ public final class GenericOneMax {
                     individuals[i] = processor.query(flipUpperHalf(i, 0), Arrays.copyOf(individuals, i));
                     virtualIndividuals[i] = simulateUpperHalf(n, Arrays.copyOf(virtualIndividuals, i));
                 }
-                UnrestrictedOneMax unrestricted = new UnrestrictedOneMax(n,
+                UnrestrictedOneMax unrestricted = new UnrestrictedOneMax(n, purelyRandomUnrestrictedOneMax,
                         virtualIndividuals[0], individuals[0].fitness(),
                         virtualIndividuals[1], individuals[1].fitness());
 
@@ -124,7 +124,7 @@ public final class GenericOneMax {
                             individuals[i] = processor.query(flipUpperHalf(i, 1), Arrays.copyOf(individuals, i));
                             virtualIndividuals[i] = simulateUpperHalf(remaining, Arrays.copyOf(virtualIndividuals, i));
                             if (i == 2) {
-                                unrestricted = new UnrestrictedOneMax(remaining,
+                                unrestricted = new UnrestrictedOneMax(remaining, purelyRandomUnrestrictedOneMax,
                                         virtualIndividuals[0], individuals[0].fitness() - others,
                                         virtualIndividuals[2], individuals[2].fitness() - others);
                             } else {
