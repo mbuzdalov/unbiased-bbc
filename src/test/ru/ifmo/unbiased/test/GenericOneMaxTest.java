@@ -11,8 +11,8 @@ public class GenericOneMaxTest {
     public void smokeGeneric() {
         for (int arity = 3; arity <= 6; ++arity) {
             // The tricky bound on n is because arity 6 is currently quite slow
-            for (int n = 1; n <= (arity == 6 ? 20 : 100); ++n) {
-                int count = 10;
+            for (int n = 1; n <= (arity == 6 ? 50 : 100); ++n) {
+                int count = arity == 6 ? 1 : 10;
                 UnbiasedProcessor processor = new UnbiasedProcessor(n, arity, ImmutableBitArray::cardinality, n);
                 for (int i = 0; i < count; ++i) {
                     GenericOneMax.runGeneric(processor);
@@ -78,6 +78,31 @@ public class GenericOneMaxTest {
         double avg = (double) (sum) / count;
         double expected = 13.0 * n / 20.0;
         System.out.println("GenericOneMax, arity 5: average = " + avg + " = (13/20 n) * " + (avg / expected));
+
+        if (sum > expected * count * 1.01) {
+            Assert.fail("GREATER: n is " + n + ", sum is " + sum + ", average is " + avg);
+        }
+        if (sum < expected * count * 0.99) {
+            Assert.fail("LESS: n is " + n + ", sum is " + sum + ", average is " + avg);
+        }
+    }
+
+
+    @Test
+    public void runtimeGeneric6() {
+        int n = 239;
+        int count = 100;
+        UnbiasedProcessor processor = new UnbiasedProcessor(n, 6, ImmutableBitArray::cardinality, n);
+        int sum = 0;
+        for (int i = 0; i < count; ++i) {
+            int value = GenericOneMax.runGeneric(processor);
+            sum += value;
+            System.out.println("    [arity 6, " + (i + 1) + "/" + count + "]: " + value);
+        }
+
+        double avg = (double) (sum) / count;
+        double expected = 37.0 * n / 77.0;
+        System.out.println("GenericOneMax, arity 6: average = " + avg + " = (37/77 n) * " + (avg / expected));
 
         if (sum > expected * count * 1.01) {
             Assert.fail("GREATER: n is " + n + ", sum is " + sum + ", average is " + avg);
