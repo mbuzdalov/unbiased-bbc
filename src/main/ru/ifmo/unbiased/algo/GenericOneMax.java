@@ -19,8 +19,10 @@ public final class GenericOneMax {
         if (maxArity <= 2) {
             throw new IllegalArgumentException("General algorithm works only for max arity >= 3");
         }
-        if (maxArity >= 30) {
-            throw new UnsupportedOperationException("Current implementation of the general algorithm cannot work with arity greater than 30");
+        if (maxArity >= 6) {
+            throw new UnsupportedOperationException(
+                    "Current implementation of the general algorithm does not support arity > 6\n" +
+                    "(This should have been a warning in production environment, but we are theory guys)");
         }
         processor.reset();
         try {
