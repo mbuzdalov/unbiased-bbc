@@ -30,8 +30,9 @@ public final class UnrestrictedOneMax {
         // now we have choose(sameBits, sameGood) * choose(differentBits, diffGoodFirst) individuals to test.
         int chooseDiff = choose(differentBits, diffGoodFirst);
         int count = choose(sameBits, sameGood) * chooseDiff;
-        this.individuals = new int[count];
-        this.individualCount = 0;
+
+        int[] individuals = new int[count];
+        int individualCount = 0;
 
         int[] diffMaskTails = getMaskTails(diffMask);
         int[] sameMaskTails = getMaskTails(sameMask);
@@ -52,6 +53,9 @@ public final class UnrestrictedOneMax {
         if (individualCount != count) {
             throw new AssertionError();
         }
+
+        this.individuals = individuals;
+        this.individualCount = individualCount;
     }
 
     private static int[] getMaskTails(int mask) {
