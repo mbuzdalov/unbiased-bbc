@@ -1,5 +1,7 @@
 package ru.ifmo.unbiased;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.function.IntUnaryOperator;
 
@@ -39,22 +41,62 @@ public class BigMeasurements {
             "generic arity=6 hack",
     };
 
-    public static void main(String[] args) {
-        for (int n : new int[] { 1000 }) {
-            System.out.println("n = " + n);
+    private static String[] algorithmTexNames = {
+            "ArityOne",
+            "ArityTwo",
+            "CustomArityThree",
+            "CustomArityFourA",
+            "GenericArityThreePure",
+            "GenericArityThreeHack",
+            "GenericArityFourPure",
+            "GenericArityFourHack",
+            "GenericArityFivePure",
+            "GenericArityFiveHack",
+            "GenericAritySixPure",
+            "GenericAritySixHack",
+    };
+
+    public static void main(String[] args) throws IOException {
+        try (PrintWriter plots = new PrintWriter("measurements.tex");
+             PrintWriter logs = new PrintWriter("measurements.log")) {
             for (int i = 0; i < algorithms.length; ++i) {
-                System.out.print("  " + algorithmNames[i] + ":");
-                int sum = 0;
-                int[] results = new int[25];
-                for (int j = 0; j < results.length; ++j) {
-                    results[j] = algorithms[i].applyAsInt(n);
-                    sum += results[j];
+                plots.println("\\pgfplotstableread{");
+                plots.println("  x y dev");
+                logs.println(algorithmNames[i]);
+                System.out.println(algorithmNames[i] + ":");
+                for (int n = 100; n <= 2000; n += 100) {
+                    System.out.println("  n = " + n);
+                    System.out.print("  ");
+                    logs.print("  n = " + n + ":");
+                    int sum = 0;
+                    int measurements = 100;
+                    int[] results = new int[measurements];
+                    for (int j = 0; j < results.length; ++j) {
+                        results[j] = algorithms[i].applyAsInt(n);
+                        System.out.print(" " + results[j]);
+                        sum += results[j];
+                        if ((j + 1) % 25 == 0) {
+                            System.out.println();
+                            System.out.print("  ");
+                        }
+                    }
+                    Arrays.sort(results);
+                    for (int result : results) {
+                        logs.print(" " + result);
+                    }
+                    logs.println();
+                    double mean = (double) (sum) / measurements;
+                    double sumDiffSquares = 0;
+                    for (int result : results) {
+                        sumDiffSquares += (mean - result) * (mean - result);
+                    }
+                    double deviation = Math.sqrt(sumDiffSquares / (measurements - 1));
+                    plots.println("    " + n + " " + mean + " " + deviation);
+                    System.out.println("=> " + mean + " +- " + deviation);
                 }
-                Arrays.sort(results);
-                for (int r : results) {
-                    System.out.print(" " + r);
-                }
-                System.out.println(" => " + ((double)sum / results.length));
+                plots.println("}{\\" + algorithmTexNames[i] + "}");
+                plots.flush();
+                logs.flush();
             }
         }
     }
