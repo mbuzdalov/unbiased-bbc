@@ -38,7 +38,7 @@ public class UnrestrictedComparison {
     public static void main(String[] args) {
         List<String> summary = new ArrayList<>();
         List<String> stats = new ArrayList<>();
-        for (int n = 2; n <= 31; ++n) {
+        for (int n = 2; n <= 32; ++n) {
             int sumPure = 0, sumHack = 0;
             int nTimes = 10000;
             double[] valuesPure = new double[nTimes];
