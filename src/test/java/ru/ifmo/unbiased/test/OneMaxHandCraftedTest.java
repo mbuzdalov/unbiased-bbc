@@ -36,27 +36,27 @@ public class OneMaxHandCraftedTest {
     }
 
     @Test
-    public void smokeQuaternary1() {
+    public void smokeQuaternary() {
         for (int n = 1; n <= 100; ++n) {
             for (int t = 0; t < 10; ++t) {
-                OneMaxHandCrafted.runQuaternary1(new UnbiasedProcessor(n, 4, ImmutableBitArray::cardinality, n));
+                OneMaxHandCrafted.runQuaternary(new UnbiasedProcessor(n, 4, ImmutableBitArray::cardinality, n));
             }
         }
     }
 
     @Test
-    public void runtimeQuaternary1() {
+    public void runtimeQuaternary() {
         int n = 239;
         int count = 1000;
         UnbiasedProcessor processor = new UnbiasedProcessor(n, 4, ImmutableBitArray::cardinality, n);
         int sum = 0;
         for (int i = 0; i < count; ++i) {
-            sum += OneMaxHandCrafted.runQuaternary1(processor);
+            sum += OneMaxHandCrafted.runQuaternary(processor);
         }
 
         double avg = (double) (sum) / count;
-        double expected = 9.0 * n / 8.0 * 19 / 20;
-        System.out.println("OneMax::quaternary1: average = " + avg + " = ((9*19) / (8*20) n) * " + (avg / expected));
+        double expected = 0.922 * n;
+        System.out.println("OneMax::quaternary: average = " + avg + " = (0.922 n) * " + (avg / expected));
 
         if (sum > expected * count * 1.05 || sum < expected * count * 0.95) {
             Assert.fail("n is " + n + ", sum is " + sum + ", average is " + avg);
