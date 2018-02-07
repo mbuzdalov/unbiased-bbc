@@ -55,8 +55,8 @@ public class OneMaxHandCraftedTest {
         }
 
         double avg = (double) (sum) / count;
-        double expected = 0.922 * n;
-        System.out.println("OneMax::quaternary: average = " + avg + " = (0.922 n) * " + (avg / expected));
+        double expected = 765 / 896.0 * n;
+        System.out.println("OneMax::quaternary: average = " + avg + " = (765/896 n) * " + (avg / expected));
 
         if (sum > expected * count * 1.05 || sum < expected * count * 0.95) {
             Assert.fail("n is " + n + ", sum is " + sum + ", average is " + avg);

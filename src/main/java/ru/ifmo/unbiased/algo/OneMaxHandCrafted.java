@@ -170,10 +170,12 @@ public final class OneMaxHandCrafted {
                                 Individual flipOne = processor.query(FLIP_ONE_SAME, first, second);
                                 if (flipOne.fitness() == n - 2) {
                                     first = processor.query(Operators.ternary1SS, first, second, flipOne);
+
                                 } else {
                                     first = flipOne;
                                 }
                             }
+
                         } else {
                             Individual m = processor.query(FLIP_THREE_SAME, first, second);
                             if (m.fitness() == first.fitness() + 3) {
@@ -214,341 +216,654 @@ public final class OneMaxHandCrafted {
                             sameCount -= 3;
                         }
                     }
-                }
-                else {
+                } else {
                     Individual a = processor.query(FLIP_SEVEN_SAME, first, second);
-                    if (a.fitness() == first.fitness() + 7) {      // 0000000->1111111
+                    if (a.fitness() == first.fitness() + 7) {
                         first = a;
-                    } else if (a.fitness() == first.fitness() - 7) {  // 1111111->0000000
+                    } else if (a.fitness() == first.fitness() - 7) {
                         second = processor.query(Operators.ternarySD, second, first, a);
                     } else {
                         if (a.fitness() - first.fitness() < 0) {
-                            Individual c = a;
-                            a = first;
-                            first = c;
-                            second = processor.query(XOR3, second, first, a);
-                        }
-                        Individual b = processor.query(FLIP_FOUR_DIFFERENT, first, a);
-                        if (a.fitness() == first.fitness() + 5) {
-                            if (b.fitness() == first.fitness() + 2) {
-                                Individual c = processor.query(Operators.ternary2SD, a, b, first);
-                                if (c.fitness() == a.fitness()) {
-                                    Individual d = processor.query(FLIP_ONE_DIFFERENT, c, a);
-                                    if (d.fitness() == a.fitness() + 1) {
-                                        first = d;
-                                        second = processor.query(XOR3, second, first, a);
+                            Individual b = processor.query(FLIP_FOUR_DIFFERENT, a, first);
+                            if (first.fitness() == a.fitness() + 5) {
+                                if (b.fitness() == a.fitness() + 2) {
+                                    Individual c = processor.query(Operators.ternary2SD, first, b, a);
+                                    if (c.fitness() == first.fitness()) {
+                                        Individual d = processor.query(FLIP_ONE_DIFFERENT, c, first);
+                                        if (d.fitness() == first.fitness() + 1) {
+                                            first = d;
+                                            second = processor.query(XOR3, second, a, first);
+                                        } else {
+                                            first = processor.query(Operators.ternarySD, first, d, c);
+                                            second = processor.query(XOR3, second, a, first);
+                                        }
                                     } else {
-                                        first = processor.query(Operators.ternarySD, a, d, c);
-                                        second = processor.query(XOR3, second, first, a);
+                                        Individual d = processor.query(Operators.qua1SDS, first, b, a, c);
+                                        if (d.fitness() == first.fitness() + 1) {
+                                            first = d;
+                                            second = processor.query(XOR3, second, a, first);
+                                        } else {
+                                            first = processor.query(Operators.quaSDSDSD, d, c, a, b);
+                                            second = processor.query(XOR3, second, a, first);
+                                        }
                                     }
-                                } else {
-                                    Individual d = processor.query(Operators.qua1SDS, a, b, first, c);
-                                    if (d.fitness() == a.fitness() + 1) {
-                                        first = d;
-                                        second = processor.query(XOR3, second, first, a);
+                                } else if (b.fitness() == a.fitness() + 4) {
+                                    Individual c = processor.query(Operators.ternary2SD, b, a, first);
+                                    if (c.fitness() == b.fitness() + 2) {
+                                        first = c;
+                                        second = processor.query(XOR3, second, a, first);
                                     } else {
-                                        first = processor.query(Operators.quaSDSDSD, d, c, first, b);
-                                        second = processor.query(XOR3, second, first, a);
+                                        Individual d = processor.query(Operators.ternary1DS, first, b, c);
+                                        if (d.fitness() == first.fitness() + 1) {
+                                            first = d;
+                                            second = processor.query(XOR3, second, a, first);
+                                        } else {
+                                            first = processor.query(Operators.quaDSS, first, b, c, d);
+                                            second = processor.query(XOR3, second, a, first);
+                                        }
                                     }
                                 }
-                            } else if (b.fitness() == first.fitness() + 4) {
-                                Individual c = processor.query(Operators.ternary2SD, b, first, a);
-                                if (c.fitness() == b.fitness() + 2) {
-                                    first = c;
-                                    second = processor.query(XOR3, second, first, a);
-                                } else {
-                                    Individual d = processor.query(Operators.ternary1DS, a, b, c);
-                                    if (d.fitness() == a.fitness() + 1) {
-                                        first = d;
-                                        second = processor.query(XOR3, second, first, a);
+                            } else if (first.fitness() == a.fitness() + 3) {
+                                if (b.fitness() == a.fitness()) {
+                                    Individual c = processor.query(Operators.ternary2SD, first, b, a);
+                                    if (c.fitness() == first.fitness() + 2) {
+                                        first = c;
+                                        second = processor.query(XOR3, second, a, first);
+                                    } else if (c.fitness() == first.fitness()) {
+                                        Individual d = processor.query(Operators.qua1DSS1DDS, first, a, c, b);
+                                        if (d.fitness() == first.fitness() + 2) {
+                                            first = d;
+                                            second = processor.query(XOR3, second, a, first);
+                                        } else if (d.fitness() == first.fitness()) {
+                                            Individual e = processor.query(XOR3, d, c, first);
+                                            if (e.fitness() == first.fitness() + 2) {
+                                                first = e;
+                                                second = processor.query(XOR3, second, a, first);
+                                            } else {
+                                                first = processor.query(Operators.quaDSS, first, a, e, b);
+                                                second = processor.query(XOR3, second, a, first);
+                                            }
+                                        } else if (d.fitness() == first.fitness() - 2) {
+                                            first = processor.query(Operators.quaDSS, first, a, b, d);
+                                            second = processor.query(XOR3, second, a, first);
+                                        }
+                                    } else if (c.fitness() == first.fitness() - 2) {
+                                        first = processor.query(Operators.quaDSS, first, a, b, c);
+                                        second = processor.query(XOR3, second, a, first);
+                                    }
+                                } else if (b.fitness() == a.fitness() + 2) {
+                                    Individual c = processor.query(Operators.ternary2DS2SD, b, a, first);
+                                    if (c.fitness() == b.fitness()) {
+                                        Individual d = processor.query(Operators.ternary1DS1SD, first, b, c);
+                                        if (d.fitness() == first.fitness() + 2) {
+                                            first = d;
+                                            second = processor.query(XOR3, second, a, first);
+                                        } else if (d.fitness() == first.fitness()) {
+                                            Individual f = processor.query(Operators.quaSDDDSS, first, b, c, d);
+                                            if (f.fitness() == first.fitness() + 2) {
+                                                first = f;
+                                                second = processor.query(XOR3, second, a, first);
+                                            } else {
+                                                first = processor.query(Operators.quaSDSDSD, first, b, c, d);
+                                                second = processor.query(XOR3, second, a, first);
+                                            }
+                                        } else if (d.fitness() == first.fitness() - 2) {
+                                            Individual f = processor.query(Operators.quaSDSDSS, first, b, c, d);
+                                            if (f.fitness() == first.fitness() + 2) {
+                                                first = f;
+                                                second = processor.query(XOR3, second, a, first);
+                                            } else {
+                                                Individual x = processor.query(Operators.ternary1DSSD, b, a, c);
+                                                if (x.fitness() == first.fitness() + 2) {
+                                                    first = x;
+                                                    second = processor.query(XOR3, second, a, first);
+                                                } else {
+                                                    first = processor.query(Operators.quaSDDDSS, b, a, c, x);
+                                                    second = processor.query(XOR3, second, a, first);
+                                                }
+                                            }
+                                        }
+                                    } else if (c.fitness() == b.fitness() - 2) {
+                                        Individual e = processor.query(Operators.qua1DSS1DDS, first, a, b, c);
+                                        if (e.fitness() == first.fitness() + 2) {
+                                            first = e;
+                                            second = processor.query(XOR3, second, a, first);
+                                        } else if (e.fitness() == first.fitness() - 2) {
+                                            first = processor.query(Operators.quaDSS, first, a, c, e);
+                                            second = processor.query(XOR3, second, a, first);
+                                        } else if (e.fitness() == first.fitness()) {
+                                            Individual f = processor.query(Operators.quaDSSSSD, first, b, c, e);
+                                            if (f.fitness() == first.fitness() + 2) {
+                                                first = f;
+                                                second = processor.query(XOR3, second, a, first);
+                                            } else {
+                                                first = processor.query(Operators.quaDSS, first, a, c, f);
+                                                second = processor.query(XOR3, second, a, first);
+                                            }
+                                        }
+                                    } else if (c.fitness() == b.fitness() + 2) {
+                                        Individual d = processor.query(Operators.ternary1SD, c, a, b);
+                                        if (d.fitness() == first.fitness() + 2) {
+                                            first = d;
+                                            second = processor.query(XOR3, second, a, first);
+                                        } else {
+                                            first = processor.query(Operators.quaSDS, c, a, b, d);
+                                            second = processor.query(XOR3, second, a, first);
+                                        }
+                                    }
+                                } else if (b.fitness() == a.fitness() + 4) {
+                                    Individual c = processor.query(Operators.ternary2DD, first, a, b);
+                                    if (c.fitness() == first.fitness() + 2) {
+                                        first = c;
+                                        second = processor.query(XOR3, second, a, first);
                                     } else {
-                                        first = processor.query(Operators.quaDSS, a, b, c ,d);
-                                        second = processor.query(XOR3, second, first, a);
+                                        Individual d = processor.query(Operators.ternary1DS, b, first, c);
+                                        if (d.fitness() == first.fitness() + 2) {
+                                            first = d;
+                                            second = processor.query(XOR3, second, a, first);
+                                        } else {
+                                            first = processor.query(Operators.quaDSS, b, first, c, d);
+                                            second = processor.query(XOR3, second, a, first);
+                                        }
+                                    }
+                                }
+                            } else if (first.fitness() == a.fitness() + 1) {
+                                if (b.fitness() == a.fitness() + 4) {
+                                    first = b;
+                                    second = processor.query(XOR3, second, a, first);
+                                } else if (b.fitness() == a.fitness() + 2) {
+                                    Individual c = processor.query(Operators.ternary2DS2DD, first, a, b);
+                                    if (c.fitness() == first.fitness()) {
+                                        Individual d = processor.query(Operators.qua1DSSDDD, first, a, b, c);
+                                        if (d.fitness() == first.fitness() + 3) {
+                                            first = d;
+                                            second = processor.query(XOR3, second, a, first);
+                                        } else if (d.fitness() == first.fitness() + 1) {
+                                            first = processor.query(Operators.quaDSSSDD, d, a, c, b);
+                                            second = processor.query(XOR3, second, a, first);
+                                        } else if (d.fitness() == first.fitness() - 1) {
+                                            Individual e = processor.query(Operators.ternary1DS1SD, b, first, c);
+                                            if (e.fitness() == b.fitness() + 2) {
+                                                first = e;
+                                                second = processor.query(XOR3, second, a, first);
+                                            } else if (e.fitness() == b.fitness()) {
+                                                Individual f = processor.query(Operators.quaSDSDSD, b, e, c, first);
+                                                if (f.fitness() == b.fitness() + 2) {
+                                                    first = f;
+                                                    second = processor.query(XOR3, second, a, first);
+                                                } else {
+                                                    first = processor.query(Operators.quaSDSDSD, b, e, first, c);
+                                                    second = processor.query(XOR3, second, a, first);
+                                                }
+                                            } else if (e.fitness() == b.fitness() - 2) {
+                                                first = processor.query(Operators.quaDSSSSD, b, first, e, c);
+                                                second = processor.query(XOR3, second, a, first);
+                                            }
+                                        }
+                                    } else if (c.fitness() == first.fitness() - 2) {
+                                        Individual d = processor.query(Operators.qua1DSS1SSD, b, first, c, a);
+                                        if (d.fitness() == b.fitness() + 2) {
+                                            first = d;
+                                            second = processor.query(XOR3, second, a, first);
+                                        } else if (d.fitness() == b.fitness()) {
+                                            Individual e = processor.query(Operators.quaDSSSSD, b, a, c, d);
+                                            if (e.fitness() == b.fitness() + 2) {
+                                                first = e;
+                                                second = processor.query(XOR3, second, a, first);
+                                            } else {
+                                                first = processor.query(Operators.quaDSSSSD, b, d, c, first);
+                                                second = processor.query(XOR3, second, a, first);
+                                            }
+                                        } else if (d.fitness() == b.fitness() - 2) {
+                                            Individual e = processor.query(Operators.quaDSS, b, a, c, d);
+                                            first = processor.query(Operators.quaDSS, e, first, c, d);
+                                            second = processor.query(XOR3, second, a, first);
+                                        }
+                                    } else if (c.fitness() == first.fitness() + 2) {
+                                        Individual d = processor.query(Operators.ternary1DD, c, first, b);
+                                        if (d.fitness() == first.fitness() + 3) {
+                                            first = d;
+                                            second = processor.query(XOR3, second, a, first);
+                                        } else {
+                                            first = processor.query(Operators.quaDDS, c, first, b, d);
+                                            second = processor.query(XOR3, second, a, first);
+                                        }
+                                    }
+                                } else if (b.fitness() == a.fitness()) {
+                                    Individual c = processor.query(Operators.ternary2DS2SD, b, a, first);
+                                    if (c.fitness() == b.fitness() + 4) {
+                                        first = c;
+                                        second = processor.query(XOR3, second, a, first);
+                                    } else if (c.fitness() == b.fitness() + 2) {
+                                        Individual d = processor.query(Operators.quaDSDDDS, first, a, b, c);
+                                        if (d.fitness() == first.fitness() + 2) {
+                                            Individual e = processor.query(Operators.ternary1DS, d, first, b);
+                                            if (e.fitness() == first.fitness() + 3) {
+                                                first = e;
+                                                second = processor.query(XOR3, second, a, first);
+                                            } else {
+                                                first = processor.query(Operators.quaDSS, d, first, b, e);
+                                                second = processor.query(XOR3, second, a, first);
+                                            }
+                                        } else if (d.fitness() == first.fitness() - 2) {
+                                            Individual e = processor.query(Operators.ternary1DS1SD, c, a, b);
+                                            if (e.fitness() == first.fitness() + 3) {
+                                                first = e;
+                                                second = processor.query(XOR3, second, a, first);
+                                            } else if (e.fitness() == c.fitness()) {
+                                                Individual f = processor.query(Operators.quaSDSDSD, e, first, d, b);
+                                                if (f.fitness() == first.fitness() + 3) {
+                                                    first = f;
+                                                    second = processor.query(XOR3, second, a, first);
+                                                } else if (f.fitness() == e.fitness() - 2) {
+                                                    first = processor.query(Operators.quaDSSSDD, e, a, d, b);
+                                                    second = processor.query(XOR3, second, a, first);
+                                                }
+                                            } else if (e.fitness() == c.fitness() - 2) {
+                                                first = processor.query(Operators.quaSDSDSS, c, a, b, e);
+                                                second = processor.query(XOR3, second, a, first);
+                                            }
+                                        }
+                                    } else if (c.fitness() == b.fitness()) {
+                                        Individual d = processor.query(Operators.quaDSSDDD, first, a, b, c);
+                                        if (d.fitness() == first.fitness() + 3) {
+                                            first = d;
+                                            second = processor.query(XOR3, second, a, first);
+                                        } else {
+                                            Individual e = processor.query(Operators.qua1DSS1SSD1SDS, first, b, c, d);
+                                            if (e.fitness() == first.fitness() + 3) {
+                                                first = e;
+                                                second = processor.query(XOR3, second, a, first);
+                                            } else if (e.fitness() == first.fitness() + 1) {
+                                                Individual f = processor.query(Operators.quaSSDDDS, e, first, b, d);
+                                                if (f.fitness() == first.fitness() + 3) {
+                                                    first = f;
+                                                    second = processor.query(XOR3, second, a, first);
+                                                } else {
+                                                    f = processor.query(Operators.quaDDSSSD, e, first, b, c);
+                                                    if (f.fitness() == first.fitness() + 3) {
+                                                        first = f;
+                                                        second = processor.query(XOR3, second, a, first);
+                                                    } else {
+                                                        first = processor.query(Operators.quaSDSDSD, e, first, b, d);
+                                                        second = processor.query(XOR3, second, a, first);
+                                                    }
+                                                }
+                                            } else if (e.fitness() == first.fitness() - 1) {
+                                                Individual f = processor.query(Operators.quaDSDSDSSSDDDS, e, first, b, d);
+                                                if (f.fitness() == first.fitness() + 3) {
+                                                    first = f;
+                                                    second = processor.query(XOR3, second, a, first);
+                                                } else {
+                                                    f = processor.query(Operators.quaDSDSDSSSDDDS, e, first, b, c);
+                                                    if (f.fitness() == first.fitness() + 3) {
+                                                        first = f;
+                                                        second = processor.query(XOR3, second, a, first);
+                                                    } else {
+                                                        first = processor.query(Operators.quaDSDSDSSSDDDS, e, first, c, d);
+                                                        second = processor.query(XOR3, second, a, first);
+                                                    }
+                                                }
+                                            } else if (e.fitness() == first.fitness() - 3) {
+                                                first = processor.query(Operators.quaDSSSDSSSDDDS, b, d, c, e);
+                                                second = processor.query(XOR3, second, a, first);
+                                            }
+                                        }
+                                    } else if (c.fitness() == b.fitness() - 2) {
+                                        Individual d = processor.query(Operators.qua1DDSSDS, first, b, a, c);
+                                        if (d.fitness() == first.fitness() + 3) {
+                                            first = d;
+                                            second = processor.query(XOR3, second, a, first);
+                                        } else {
+                                            first = processor.query(Operators.quaSDDDSS, d, c, b, a);
+                                            second = processor.query(XOR3, second, a, first);
+                                        }
+                                    }
+                                } else if (b.fitness() == a.fitness() - 2) {
+                                    Individual c = processor.query(Operators.ternary2SD, first, b, a);
+                                    if (c.fitness() == first.fitness() + 2) {
+                                        Individual d = processor.query(Operators.ternary1SD, c, b, a);
+                                        if (d.fitness() == first.fitness() + 3) {
+                                            first = d;
+                                            second = processor.query(XOR3, second, a, first);
+                                        } else {
+                                            first = processor.query(Operators.quaSDS, c, b, a, d);
+                                            second = processor.query(XOR3, second, a, first);
+                                        }
+                                    } else {
+                                        Individual d = processor.query(Operators.ternary1DSSD, c, b, a);
+                                        if (d.fitness() == first.fitness() + 3) {
+                                            first = d;
+                                            second = processor.query(XOR3, second, a, first);
+                                        } else {
+                                            first = processor.query(Operators.quaDSSSDD, c, b, a, d);
+                                            second = processor.query(XOR3, second, a, first);
+                                        }
                                     }
                                 }
                             }
-                        } else if (a.fitness() == first.fitness() + 3) {
-                            if (b.fitness() == first.fitness()) {
-                                Individual c = processor.query(Operators.ternary2SD, a, b, first);
-                                if (c.fitness() == a.fitness() + 2) {
-                                    first = c;
-                                    second = processor.query(XOR3, second, first, a);
-                                } else if (c.fitness() == a.fitness()){
-                                    Individual d = processor.query(Operators.qua1DSS1DDS, a, first, c, b);
-                                    if (d.fitness() == a.fitness() + 2) {
-                                        first = d;
-                                        second = processor.query(XOR3, second, first, a);
-                                    } else if (d.fitness() == a.fitness()){
-                                        Individual e = processor.query(XOR3, d, c, a);
-                                        if (e.fitness() == a.fitness() +2) {
-                                            first = e;
+                        } else {
+                            Individual b = processor.query(FLIP_FOUR_DIFFERENT, first, a);
+                            if (a.fitness() == first.fitness() + 5) {
+                                if (b.fitness() == first.fitness() + 2) {
+                                    Individual c = processor.query(Operators.ternary2SD, a, b, first);
+                                    if (c.fitness() == a.fitness()) {
+                                        Individual d = processor.query(FLIP_ONE_DIFFERENT, c, a);
+                                        if (d.fitness() == a.fitness() + 1) {
+                                            first = d;
                                             second = processor.query(XOR3, second, first, a);
                                         } else {
-                                            first = processor.query(Operators.quaDSS, a, first, e, b);
+                                            first = processor.query(Operators.ternarySD, a, d, c);
                                             second = processor.query(XOR3, second, first, a);
                                         }
-                                    } else if (d.fitness() == a.fitness() - 2) {
-                                        first = processor.query(Operators.quaDSS, a, first, b, d);
-                                        second = processor.query(XOR3, second, first, a);
+                                    } else {
+                                        Individual d = processor.query(Operators.qua1SDS, a, b, first, c);
+                                        if (d.fitness() == a.fitness() + 1) {
+                                            first = d;
+                                            second = processor.query(XOR3, second, first, a);
+                                        } else {
+                                            first = processor.query(Operators.quaSDSDSD, d, c, first, b);
+                                            second = processor.query(XOR3, second, first, a);
+                                        }
                                     }
-                                } else if (c.fitness() == a.fitness() - 2) {
-                                    first = processor.query(Operators.quaDSS, a, first, b, c);
-                                    second = processor.query(XOR3, second, first, a);
-                                }
-                            } else if (b.fitness() == first.fitness() + 2) {
-                                Individual c = processor.query(Operators.ternary2DS2SD, b, first, a);
-                                if (c.fitness() == b.fitness()) {
-                                    Individual d = processor.query(Operators.ternary1DS1SD, a, b, c);
-                                    if (d.fitness() == a.fitness() + 2) {
-                                        first = d;
+                                } else if (b.fitness() == first.fitness() + 4) {
+                                    Individual c = processor.query(Operators.ternary2SD, b, first, a);
+                                    if (c.fitness() == b.fitness() + 2) {
+                                        first = c;
                                         second = processor.query(XOR3, second, first, a);
-                                    } else if(d.fitness() == a.fitness()) {
-                                        Individual f = processor.query(Operators.quaSDDDSS, a, b, c, d);
-                                        if (f.fitness() == a.fitness() + 2) {
-                                            first = f;
+                                    } else {
+                                        Individual d = processor.query(Operators.ternary1DS, a, b, c);
+                                        if (d.fitness() == a.fitness() + 1) {
+                                            first = d;
                                             second = processor.query(XOR3, second, first, a);
                                         } else {
-                                            first = processor.query(Operators.quaSDSDSD, a, b, c, d);
+                                            first = processor.query(Operators.quaDSS, a, b, c, d);
                                             second = processor.query(XOR3, second, first, a);
                                         }
-                                    } else if (d.fitness() == a.fitness() - 2) {
-                                        Individual f = processor.query(Operators.quaSDSDSS, a, b, c, d);
-                                        if (f.fitness() == a.fitness() + 2) {
-                                            first = f;
+                                    }
+                                }
+                            } else if (a.fitness() == first.fitness() + 3) {
+                                if (b.fitness() == first.fitness()) {
+                                    Individual c = processor.query(Operators.ternary2SD, a, b, first);
+                                    if (c.fitness() == a.fitness() + 2) {
+                                        first = c;
+                                        second = processor.query(XOR3, second, first, a);
+                                    } else if (c.fitness() == a.fitness()) {
+                                        Individual d = processor.query(Operators.qua1DSS1DDS, a, first, c, b);
+                                        if (d.fitness() == a.fitness() + 2) {
+                                            first = d;
                                             second = processor.query(XOR3, second, first, a);
-                                        } else {
-                                            Individual x = processor.query(Operators.ternary1DSSD, b, first, c);
-                                            if (x.fitness() == a.fitness() + 2) {
-                                                first = x;
+                                        } else if (d.fitness() == a.fitness()) {
+                                            Individual e = processor.query(XOR3, d, c, a);
+                                            if (e.fitness() == a.fitness() + 2) {
+                                                first = e;
                                                 second = processor.query(XOR3, second, first, a);
                                             } else {
-                                                first = processor.query(Operators.quaSDDDSS, b, first, c, x);
+                                                first = processor.query(Operators.quaDSS, a, first, e, b);
                                                 second = processor.query(XOR3, second, first, a);
                                             }
-                                        }
-                                    }
-                                } else if (c.fitness() == b.fitness() - 2) {
-                                    Individual e = processor.query(Operators.qua1DSS1DDS, a, first, b, c);
-                                    if (e.fitness() == a.fitness() + 2) {
-                                        first = e;
-                                        second = processor.query(XOR3, second, first, a);
-                                    } else if (e.fitness() == a.fitness() - 2) {
-                                        first = processor.query(Operators.quaDSS, a, first, c, e);
-                                        second = processor.query(XOR3, second, first, a);
-                                    } else if (e.fitness() == a.fitness()) {
-                                        Individual f = processor.query(Operators.quaDSSSSD, a, b, c, e);
-                                        if (f.fitness() == a.fitness() + 2) {
-                                            first = f;
-                                            second = processor.query(XOR3, second, first, a);
-                                        } else {
-                                            first = processor.query(Operators.quaDSS, a, first, c, f);
+                                        } else if (d.fitness() == a.fitness() - 2) {
+                                            first = processor.query(Operators.quaDSS, a, first, b, d);
                                             second = processor.query(XOR3, second, first, a);
                                         }
-                                    }
-                                } else if (c.fitness() == b.fitness() + 2) {
-                                    Individual d = processor.query(Operators.ternary1SD, c, first, b);
-                                    if (d.fitness() == a.fitness() + 2) {
-                                        first = d;
-                                        second = processor.query(XOR3, second, first, a);
-                                    } else {
-                                        first = processor.query(Operators.quaSDS, c, first, b, d);
+                                    } else if (c.fitness() == a.fitness() - 2) {
+                                        first = processor.query(Operators.quaDSS, a, first, b, c);
                                         second = processor.query(XOR3, second, first, a);
                                     }
-                                }
-                            } else if (b.fitness() == first.fitness() + 4) {
-                                Individual c = processor.query(Operators.ternary2DD, a, first, b);
-                                if (c.fitness() == a.fitness() + 2) {
-                                    first = c;
-                                    second = processor.query(XOR3, second, first, a);
-                                } else {
-                                    Individual d = processor.query(Operators.ternary1DS, b, a, c);
-                                    if (d.fitness() == a.fitness() + 2) {
-                                        first = d;
-                                        second = processor.query(XOR3, second, first, a);
-                                    } else {
-                                        first = processor.query(Operators.quaDSS, b, a, c, d);
-                                        second = processor.query(XOR3, second, first, a);
-                                    }
-                                }
-                            }
-                        } else if (a.fitness() == first.fitness() + 1) {
-                            if (b.fitness() == first.fitness() + 4) {
-                                first = b;
-                                second = processor.query(XOR3, second, first, a);
-                            } else if (b.fitness() == first.fitness() + 2) {
-                                Individual c = processor.query(Operators.ternary2DS2DD, a, first, b);
-                                if (c.fitness() == a.fitness()) {
-                                    Individual d = processor.query(Operators.qua1DSSDDD, a, first, b, c);
-                                    if (d.fitness() == a.fitness() + 3) {
-                                        first = d;
-                                        second = processor.query(XOR3, second, first, a);
-                                    } else if (d.fitness() == a.fitness() + 1) {
-                                        first = processor.query(Operators.quaDSSSDD, d, first, c, b);
-                                        second = processor.query(XOR3, second, first, a);
-                                    } else if (d.fitness() == a.fitness() - 1) {
-                                        Individual e = processor.query(Operators.ternary1DS1SD, b, a, c);
-                                        if (e.fitness() == b.fitness() + 2) {
-                                            first = e;
+                                } else if (b.fitness() == first.fitness() + 2) {  // �������� ����
+                                    Individual c = processor.query(Operators.ternary2DS2SD, b, first, a);
+                                    if (c.fitness() == b.fitness()) {
+                                        Individual d = processor.query(Operators.ternary1DS1SD, a, b, c);
+                                        if (d.fitness() == a.fitness() + 2) {
+                                            first = d;
                                             second = processor.query(XOR3, second, first, a);
-                                        } else if (e.fitness() == b.fitness()) {
-                                            Individual f = processor.query(Operators.quaSDSDSD, b, e, c, a);
-                                            if (f.fitness() == b.fitness() + 2) {
+                                        } else if (d.fitness() == a.fitness()) {
+                                            Individual f = processor.query(Operators.quaSDDDSS, a, b, c, d);
+                                            if (f.fitness() == a.fitness() + 2) {
                                                 first = f;
                                                 second = processor.query(XOR3, second, first, a);
                                             } else {
-                                                first = processor.query(Operators.quaSDSDSD, b, e, a, c);
+                                                first = processor.query(Operators.quaSDSDSD, a, b, c, d);
                                                 second = processor.query(XOR3, second, first, a);
                                             }
-                                        } else if (e.fitness() == b.fitness() - 2) {
-                                            first = processor.query(Operators.quaDSSSSD, b, a, e, c);
-                                            second = processor.query(XOR3, second, first, a);
-                                        }
-                                    }
-                                } else if (c.fitness() == a.fitness() - 2) {
-                                    Individual d = processor.query(Operators.qua1DSS1SSD, b, a, c, first);
-                                    if (d.fitness() == b.fitness() + 2) {
-                                        first = d;
-                                        second = processor.query(XOR3, second, first, a);
-                                    } else if (d.fitness() == b.fitness()) {
-                                        Individual e = processor.query(Operators.quaDSSSSD, b, first, c, d);
-                                        if (e.fitness() == b.fitness() + 2) {
-                                            first = e;
-                                            second = processor.query(XOR3, second, first, a);
-                                        } else {
-                                            first = processor.query(Operators.quaDSSSSD, b, d, c, a);
-                                            second = processor.query(XOR3, second, first, a);
-                                        }
-                                    } else if (d.fitness() == b.fitness() - 2) {
-                                        Individual e = processor.query(Operators.quaDSS, b, first, c, d);
-                                        first = processor.query(Operators.quaDSS, e, a, c, d);
-                                        second = processor.query(XOR3, second, first, a);
-                                    }
-                                } else if (c.fitness() == a.fitness() + 2) {
-                                    Individual d = processor.query(Operators.ternary1DD, c, a, b);
-                                    if (d.fitness() == a.fitness() + 3) {
-                                        first = d;
-                                        second = processor.query(XOR3, second, first, a);
-                                    } else {
-                                        first = processor.query(Operators.quaDDS, c, a, b, d);
-                                        second = processor.query(XOR3, second, first, a);
-                                    }
-                                }
-                            } else if (b.fitness() == first.fitness()) {
-                                Individual c = processor.query(Operators.ternary2DS2SD, b, first, a);
-                                if (c.fitness() == b.fitness() +4) {
-                                    first = c;
-                                    second = processor.query(XOR3, second, first, a);
-                                } else if (c.fitness() == b.fitness() + 2) {
-                                    Individual d = processor.query(Operators.quaDSDDDS, a, first, b, c);
-                                    if (d.fitness() == a.fitness() + 2) {
-                                        Individual e = processor.query(Operators.ternary1DS, d, a, b);
-                                        if (e.fitness() == a.fitness() + 3) {
-                                            first = e;
-                                            second = processor.query(XOR3, second, first, a);
-                                        } else {
-                                            first = processor.query(Operators.quaDSS, d, a, b, e);
-                                            second = processor.query(XOR3, second, first, a);
-                                        }
-                                    } else if (d.fitness() == a.fitness() - 2) {
-                                        Individual e = processor.query(Operators.ternary1DS1SD, c, first, b);
-                                        if (e.fitness() == a.fitness() + 3) {
-                                            first = e;
-                                            second = processor.query(XOR3, second, first, a);
-                                        } else if(e.fitness() == c.fitness()) {
-                                            Individual f = processor.query(Operators.quaSDSDSD, e, a, d, b);
-                                            if (f.fitness() == a.fitness() + 3) {
-                                                first = f;
-                                                second = processor.query(XOR3, second, first, a);
-                                            } else if(f.fitness() == e.fitness() - 2) {
-                                                first = processor.query(Operators.quaDSSSDD, e, first, d, b);
-                                                second = processor.query(XOR3, second, first, a);
-                                            }
-                                        } else if(e.fitness() == c.fitness() - 2) {
-                                            first = processor.query(Operators.quaSDSDSS, c, first, b, e);
-                                            second = processor.query(XOR3, second, first, a);
-                                        }
-                                    }
-                                } else if (c.fitness() == b.fitness()) {
-                                    Individual d = processor.query(Operators.quaDSSDDD, a, first, b, c);
-                                    if (d.fitness() == a.fitness() + 3) {
-                                        first = d;
-                                        second = processor.query(XOR3, second, first, a);
-                                    } else {
-                                        Individual e = processor.query(Operators.qua1DSS1SSD1SDS, a, b, c, d);
-                                        if (e.fitness() == a.fitness() + 3) {
-                                            first = e;
-                                            second = processor.query(XOR3, second, first, a);
-                                        } else if(e.fitness() == a.fitness() + 1) {
-                                            Individual f = processor.query(Operators.quaSSDDDS, e, a, b, d);
-                                            if (f.fitness() == a.fitness() + 3) {
+                                        } else if (d.fitness() == a.fitness() - 2) {
+                                            Individual f = processor.query(Operators.quaSDSDSS, a, b, c, d);
+                                            if (f.fitness() == a.fitness() + 2) {
                                                 first = f;
                                                 second = processor.query(XOR3, second, first, a);
                                             } else {
-                                                f = processor.query(Operators.quaDDSSSD, e, a, b, c);
+                                                Individual x = processor.query(Operators.ternary1DSSD, b, first, c);
+                                                if (x.fitness() == a.fitness() + 2) {
+                                                    first = x;
+                                                    second = processor.query(XOR3, second, first, a);
+                                                } else {
+                                                    first = processor.query(Operators.quaSDDDSS, b, first, c, x);
+                                                    second = processor.query(XOR3, second, first, a);
+                                                }
+                                            }
+                                        }
+                                    } else if (c.fitness() == b.fitness() - 2) {
+                                        Individual e = processor.query(Operators.qua1DSS1DDS, a, first, b, c);
+                                        if (e.fitness() == a.fitness() + 2) {
+                                            first = e;
+                                            second = processor.query(XOR3, second, first, a);
+                                        } else if (e.fitness() == a.fitness() - 2) {
+                                            first = processor.query(Operators.quaDSS, a, first, c, e);
+                                            second = processor.query(XOR3, second, first, a);
+                                        } else if (e.fitness() == a.fitness()) {
+                                            Individual f = processor.query(Operators.quaDSSSSD, a, b, c, e);
+                                            if (f.fitness() == a.fitness() + 2) {
+                                                first = f;
+                                                second = processor.query(XOR3, second, first, a);
+                                            } else {
+                                                first = processor.query(Operators.quaDSS, a, first, c, f);
+                                                second = processor.query(XOR3, second, first, a);
+                                            }
+                                        }
+                                    } else if (c.fitness() == b.fitness() + 2) {
+                                        Individual d = processor.query(Operators.ternary1SD, c, first, b);
+                                        if (d.fitness() == a.fitness() + 2) {
+                                            first = d;
+                                            second = processor.query(XOR3, second, first, a);
+                                        } else {
+                                            first = processor.query(Operators.quaSDS, c, first, b, d);
+                                            second = processor.query(XOR3, second, first, a);
+                                        }
+                                    }
+                                } else if (b.fitness() == first.fitness() + 4) {
+                                    Individual c = processor.query(Operators.ternary2DD, a, first, b);
+                                    if (c.fitness() == a.fitness() + 2) {
+                                        first = c;
+                                        second = processor.query(XOR3, second, first, a);
+                                    } else {
+                                        Individual d = processor.query(Operators.ternary1DS, b, a, c);
+                                        if (d.fitness() == a.fitness() + 2) {
+                                            first = d;
+                                            second = processor.query(XOR3, second, first, a);
+                                        } else {
+                                            first = processor.query(Operators.quaDSS, b, a, c, d);
+                                            second = processor.query(XOR3, second, first, a);
+                                        }
+                                    }
+                                }
+                            } else if (a.fitness() == first.fitness() + 1) {
+                                if (b.fitness() == first.fitness() + 4) {
+                                    first = b;
+                                    second = processor.query(XOR3, second, first, a);
+                                } else if (b.fitness() == first.fitness() + 2) {
+                                    Individual c = processor.query(Operators.ternary2DS2DD, a, first, b);
+                                    if (c.fitness() == a.fitness()) {
+                                        Individual d = processor.query(Operators.qua1DSSDDD, a, first, b, c);
+                                        if (d.fitness() == a.fitness() + 3) {
+                                            first = d;
+                                            second = processor.query(XOR3, second, first, a);
+                                        } else if (d.fitness() == a.fitness() + 1) {
+                                            first = processor.query(Operators.quaDSSSDD, d, first, c, b);
+                                            second = processor.query(XOR3, second, first, a);
+                                        } else if (d.fitness() == a.fitness() - 1) {
+                                            Individual e = processor.query(Operators.ternary1DS1SD, b, a, c);
+                                            if (e.fitness() == b.fitness() + 2) {
+                                                first = e;
+                                                second = processor.query(XOR3, second, first, a);
+                                            } else if (e.fitness() == b.fitness()) {
+                                                Individual f = processor.query(Operators.quaSDSDSD, b, e, c, a);
+                                                if (f.fitness() == b.fitness() + 2) {
+                                                    first = f;
+                                                    second = processor.query(XOR3, second, first, a);
+                                                } else {
+                                                    first = processor.query(Operators.quaSDSDSD, b, e, a, c);
+                                                    second = processor.query(XOR3, second, first, a);
+                                                }
+                                            } else if (e.fitness() == b.fitness() - 2) {
+                                                first = processor.query(Operators.quaDSSSSD, b, a, e, c);
+                                                second = processor.query(XOR3, second, first, a);
+                                            }
+                                        }
+                                    } else if (c.fitness() == a.fitness() - 2) {
+                                        Individual d = processor.query(Operators.qua1DSS1SSD, b, a, c, first);
+                                        if (d.fitness() == b.fitness() + 2) {
+                                            first = d;
+                                            second = processor.query(XOR3, second, first, a);
+                                        } else if (d.fitness() == b.fitness()) {
+                                            Individual e = processor.query(Operators.quaDSSSSD, b, first, c, d);
+                                            if (e.fitness() == b.fitness() + 2) {
+                                                first = e;
+                                                second = processor.query(XOR3, second, first, a);
+                                            } else {
+                                                first = processor.query(Operators.quaDSSSSD, b, d, c, a);
+                                                second = processor.query(XOR3, second, first, a);
+                                            }
+                                        } else if (d.fitness() == b.fitness() - 2) {
+                                            Individual e = processor.query(Operators.quaDSS, b, first, c, d);
+                                            first = processor.query(Operators.quaDSS, e, a, c, d);
+                                            second = processor.query(XOR3, second, first, a);
+                                        }
+                                    } else if (c.fitness() == a.fitness() + 2) {
+                                        Individual d = processor.query(Operators.ternary1DD, c, a, b);
+                                        if (d.fitness() == a.fitness() + 3) {
+                                            first = d;
+                                            second = processor.query(XOR3, second, first, a);
+                                        } else {
+                                            first = processor.query(Operators.quaDDS, c, a, b, d);
+                                            second = processor.query(XOR3, second, first, a);
+                                        }
+                                    }
+                                } else if (b.fitness() == first.fitness()) {
+                                    Individual c = processor.query(Operators.ternary2DS2SD, b, first, a);
+                                    if (c.fitness() == b.fitness() + 4) {
+                                        first = c;
+                                        second = processor.query(XOR3, second, first, a);
+                                    } else if (c.fitness() == b.fitness() + 2) {
+                                        Individual d = processor.query(Operators.quaDSDDDS, a, first, b, c);
+                                        if (d.fitness() == a.fitness() + 2) {
+                                            Individual e = processor.query(Operators.ternary1DS, d, a, b);
+                                            if (e.fitness() == a.fitness() + 3) {
+                                                first = e;
+                                                second = processor.query(XOR3, second, first, a);
+                                            } else {
+                                                first = processor.query(Operators.quaDSS, d, a, b, e);
+                                                second = processor.query(XOR3, second, first, a);
+                                            }
+                                        } else if (d.fitness() == a.fitness() - 2) {
+                                            Individual e = processor.query(Operators.ternary1DS1SD, c, first, b);
+                                            if (e.fitness() == a.fitness() + 3) {
+                                                first = e;
+                                                second = processor.query(XOR3, second, first, a);
+                                            } else if (e.fitness() == c.fitness()) {
+                                                Individual f = processor.query(Operators.quaSDSDSD, e, a, d, b);
+                                                if (f.fitness() == a.fitness() + 3) {
+                                                    first = f;
+                                                    second = processor.query(XOR3, second, first, a);
+                                                } else if (f.fitness() == e.fitness() - 2) {
+                                                    first = processor.query(Operators.quaDSSSDD, e, first, d, b);
+                                                    second = processor.query(XOR3, second, first, a);
+                                                }
+                                            } else if (e.fitness() == c.fitness() - 2) {
+                                                first = processor.query(Operators.quaSDSDSS, c, first, b, e);
+                                                second = processor.query(XOR3, second, first, a);
+                                            }
+                                        }
+                                    } else if (c.fitness() == b.fitness()) {
+                                        Individual d = processor.query(Operators.quaDSSDDD, a, first, b, c);
+                                        if (d.fitness() == a.fitness() + 3) {
+                                            first = d;
+                                            second = processor.query(XOR3, second, first, a);
+                                        } else {
+                                            Individual e = processor.query(Operators.qua1DSS1SSD1SDS, a, b, c, d);
+                                            if (e.fitness() == a.fitness() + 3) {
+                                                first = e;
+                                                second = processor.query(XOR3, second, first, a);
+                                            } else if (e.fitness() == a.fitness() + 1) {
+                                                Individual f = processor.query(Operators.quaSSDDDS, e, a, b, d);
                                                 if (f.fitness() == a.fitness() + 3) {
                                                     first = f;
                                                     second = processor.query(XOR3, second, first, a);
                                                 } else {
-                                                    first = processor.query(Operators.quaSDSDSD, e, a, b, d);
-                                                    second = processor.query(XOR3, second, first, a);
+                                                    f = processor.query(Operators.quaDDSSSD, e, a, b, c);
+                                                    if (f.fitness() == a.fitness() + 3) {
+                                                        first = f;
+                                                        second = processor.query(XOR3, second, first, a);
+                                                    } else {
+                                                        first = processor.query(Operators.quaSDSDSD, e, a, b, d);
+                                                        second = processor.query(XOR3, second, first, a);
+                                                    }
                                                 }
-                                            }
-                                        } else if (e.fitness() == a.fitness() - 1) {
-                                            Individual f = processor.query(Operators.quaDSDSDSSSDDDS, e, a, b, d);
-                                            if (f.fitness() == a.fitness() + 3) {
-                                                first = f;
-                                                second = processor.query(XOR3, second, first, a);
-                                            } else {
-                                                f = processor.query(Operators.quaDSDSDSSSDDDS, e, a, b, c);
+                                            } else if (e.fitness() == a.fitness() - 1) {
+                                                Individual f = processor.query(Operators.quaDSDSDSSSDDDS, e, a, b, d);
                                                 if (f.fitness() == a.fitness() + 3) {
                                                     first = f;
                                                     second = processor.query(XOR3, second, first, a);
                                                 } else {
-                                                    first = processor.query(Operators.quaDSDSDSSSDDDS, e, a, c, d);
-                                                    second = processor.query(XOR3, second, first, a);
+                                                    f = processor.query(Operators.quaDSDSDSSSDDDS, e, a, b, c);
+                                                    if (f.fitness() == a.fitness() + 3) {
+                                                        first = f;
+                                                        second = processor.query(XOR3, second, first, a);
+                                                    } else {
+                                                        first = processor.query(Operators.quaDSDSDSSSDDDS, e, a, c, d);
+                                                        second = processor.query(XOR3, second, first, a);
+                                                    }
                                                 }
+                                            } else if (e.fitness() == a.fitness() - 3) {
+                                                first = processor.query(Operators.quaDSSSDSSSDDDS, b, d, c, e);
+                                                second = processor.query(XOR3, second, first, a);
                                             }
-                                        } else if(e.fitness() == a.fitness() - 3) {
-                                            first = processor.query(Operators.quaDSSSDSSSDDDS, b, d, c, e);
+                                        }
+                                    } else if (c.fitness() == b.fitness() - 2) {
+                                        Individual d = processor.query(Operators.qua1DDSSDS, a, b, first, c);
+                                        if (d.fitness() == a.fitness() + 3) {
+                                            first = d;
+                                            second = processor.query(XOR3, second, first, a);
+                                        } else {
+                                            first = processor.query(Operators.quaSDDDSS, d, c, b, first);
                                             second = processor.query(XOR3, second, first, a);
                                         }
                                     }
-                                } else if (c.fitness() == b.fitness() - 2) {
-                                    Individual d = processor.query(Operators.qua1DDSSDS, a, b, first, c);
-                                    if (d.fitness() == a.fitness() + 3) {
-                                        first = d;
-                                        second = processor.query(XOR3, second, first, a);
+                                } else if (b.fitness() == first.fitness() - 2) {
+                                    Individual c = processor.query(Operators.ternary2SD, a, b, first);
+                                    if (c.fitness() == a.fitness() + 2) {
+                                        Individual d = processor.query(Operators.ternary1SD, c, b, first);
+                                        if (d.fitness() == a.fitness() + 3) {
+                                            first = d;
+                                            second = processor.query(XOR3, second, first, a);
+                                        } else {
+                                            first = processor.query(Operators.quaSDS, c, b, first, d);
+                                            second = processor.query(XOR3, second, first, a);
+                                        }
                                     } else {
-                                        first = processor.query(Operators.quaSDDDSS, d, c, b ,first);
-                                        second = processor.query(XOR3, second, first, a);
+                                        Individual d = processor.query(Operators.ternary1DSSD, c, b, first);
+                                        if (d.fitness() == a.fitness() + 3) {
+                                            first = d;
+                                            second = processor.query(XOR3, second, first, a);
+                                        } else {
+                                            first = processor.query(Operators.quaDSSSDD, c, b, first, d);
+                                            second = processor.query(XOR3, second, first, a);
+                                        }
                                     }
-                                }
-                            } else if (b.fitness() == first.fitness() - 2) {
-                                Individual c = processor.query(Operators.ternary2SD, a, b, first);
-                                if (c.fitness() == a.fitness() + 2) {
-                                    Individual d = processor.query(Operators.ternary1SD, c, b, first);
-                                    if (d.fitness() == a.fitness() + 3) {
-                                        first = d;
-                                        second = processor.query(XOR3, second, first, a);
-                                    } else {
-                                        first = processor.query(Operators.quaSDS, c, b, first, d);
-                                        second = processor.query(XOR3, second, first, a);
-                                    }
-                                } else {
-                                    Individual d = processor.query(Operators.ternary1DSSD, c, b, first);
-                                    if (d.fitness() == a.fitness() + 3) {
-                                        first = d;
-                                        second = processor.query(XOR3, second, first, a);
-                                    } else {
-                                        first = processor.query(Operators.quaDSSSDD, c, b, first, d);
-                                        second = processor.query(XOR3, second, first, a);
-                                    }
-
                                 }
                             }
                         }
                     }
-                    sameCount -=7;
+                    sameCount -= 7;
                 }
             }
         } catch (UnbiasedProcessor.OptimumFound found) {
