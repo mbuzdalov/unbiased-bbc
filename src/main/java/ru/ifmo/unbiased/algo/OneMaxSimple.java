@@ -52,4 +52,29 @@ public final class OneMaxSimple {
             return found.numberOfQueries();
         }
     }
+
+    public static int runBinaryDeterministic(UnbiasedProcessor processor) {
+        processor.reset();
+        try {
+            Individual first = processor.newRandomIndividual();
+            Individual second = processor.query(Operators.FLIP_ALL, first);
+
+            //noinspection InfiniteLoopStatement
+            while (true) {
+                if (first.fitness() <= second.fitness()) {
+                    Individual newFirst = processor.query(Operators.FLIP_ONE_DIFFERENT, first, second);
+                    if (newFirst.fitness() > first.fitness()) {
+                        first = newFirst;
+                    }
+                } else {
+                    Individual newSecond = processor.query(Operators.FLIP_ONE_DIFFERENT, second, first);
+                    if (newSecond.fitness() > second.fitness()) {
+                        second = newSecond;
+                    }
+                }
+            }
+        } catch (UnbiasedProcessor.OptimumFound found) {
+            return found.numberOfQueries();
+        }
+    }
 }

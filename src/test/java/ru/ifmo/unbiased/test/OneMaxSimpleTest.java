@@ -69,4 +69,34 @@ public class OneMaxSimpleTest {
             Assert.fail("n is " + n + ", sum is " + sum + ", average is " + avg);
         }
     }
+
+    @Test
+    public void smokeSimpleBinaryDeterministic() {
+        for (int n = 1; n <= 100; ++n) {
+            for (int t = 0; t < 10; ++t) {
+                OneMaxSimple.runBinaryDeterministic(new UnbiasedProcessor(n, 2, ImmutableBitArray::cardinality, n));
+            }
+        }
+    }
+
+    @Test
+    public void runtimeSimpleBinaryDeterministic() {
+        int n = 239;
+        int count = 1000;
+
+        UnbiasedProcessor processor = new UnbiasedProcessor(n, 2, ImmutableBitArray::cardinality, n);
+
+        int sum = 0;
+        for (int i = 0; i < count; ++i) {
+            sum += OneMaxSimple.runBinaryDeterministic(processor);
+        }
+
+        double avg = (double) (sum) / count;
+        double expected = 2 * n;
+        System.out.println("OneMax::simpleBinaryDeterministic: average = " + avg + " = (n * 2) * " + (avg / expected));
+
+        if (sum > expected * count * 1.05 || sum < expected * count * 0.95) {
+            Assert.fail("n is " + n + ", sum is " + sum + ", average is " + avg);
+        }
+    }
 }
