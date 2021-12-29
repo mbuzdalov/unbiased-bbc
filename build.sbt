@@ -5,7 +5,7 @@ lazy val root = project
     version := "0.0.0",
     organization := "ru.ifmo",
     libraryDependencies ++= Seq(
-      "com.github.sbt" % "junit-interface" % "0.13.2" % "test",
+      "com.github.sbt" % "junit-interface" % "0.13.3" % "test",
       "org.apache.commons" % "commons-math3" % "3.6.1"
     ),
     autoScalaLibrary := false,
